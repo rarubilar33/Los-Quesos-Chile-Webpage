@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestros Quesos — Los Quesos de Chile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yellow: #F2C832;
+      --nav-height: 72px;
+      --nav-height-scrolled: 54px;
+      --text-nav: #f5f0e8;
+      --font-body: 'Jost', sans-serif;
+      --font-display: 'Cormorant Garamond', serif;
+      --cream: #faf7f2;
+      --dark: #1a0e00;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--cream); color: #1a0e00; overflow-x: hidden; }
+
+    /* ─── TOP FADE ─── */
+    #nav-top-fade {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 110px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);
+      z-index: 99; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    #nav-top-fade.light { opacity: 0; }
+
+    /* ─── NAVBAR ─── */
+    #navbar {
+      position: fixed; top: 28px; left: 0; right: 0;
+      z-index: 100; height: var(--nav-height);
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; padding: 0 40px;
+      transition: height 0.45s cubic-bezier(0.22,1,0.36,1), background 0.45s ease, top 0.45s cubic-bezier(0.22,1,0.36,1);
+    }
+    #navbar.scrolled {
+      top: 8px; height: var(--nav-height-scrolled);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0) 100%);
+    }
+    #navbar.on-white { color: #1a0e00; }
+    #navbar.on-white .nav-link { color: #1a0e00; }
+    #navbar.on-white .nav-icon-btn { color: #1a0e00; }
+
+    .nav-left, .nav-right { display: flex; align-items: center; list-style: none; }
+    .nav-right { justify-content: flex-end; }
+
+    .nav-item { position: relative; }
+    .nav-link {
+      display: block; padding: 26px 18px;
+      font-family: var(--font-body); font-size: 11.5px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-nav); text-decoration: none; cursor: pointer;
+      transition: color 0.25s ease, padding 0.45s cubic-bezier(0.22,1,0.36,1);
+      position: relative; white-space: nowrap; user-select: none;
+    }
+    #navbar.scrolled .nav-link { padding-top: 18px; padding-bottom: 18px; }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 16px;
+      left: 18px; right: 18px; height: 1.5px;
+      background: var(--yellow);
+      transform: scaleX(0); transform-origin: left center;
+    }
+    .nav-item.active > .nav-link::after { transform: scaleX(1); }
+    .nav-item:not(.active):hover > .nav-link { color: #fff; }
+    .nav-item:not(.active):hover > .nav-link::after { transform: scaleX(1); transition: transform 1s cubic-bezier(0.22,1,0.36,1); }
+    .nav-item:not(.active) > .nav-link::after { transition: transform 0.18s ease; transform: scaleX(0); }
+
+    .nav-logo-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+    .nav-logo-wrap img { height: 72px; width: auto; transition: opacity 0.2s, height 0.45s cubic-bezier(0.22,1,0.36,1); }
+    #navbar.scrolled .nav-logo-wrap img { height: 52px; }
+    .nav-logo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); flex-shrink: 0; display: none; }
+
+    .nav-icons { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
+    .nav-icon-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; background: transparent; color: var(--text-nav); cursor: pointer; border-radius: 50%; transition: background 0.2s, color 0.2s; }
+    .nav-icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .nav-icon-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+    .dropdown {
+      position: absolute; top: calc(100% - 2px); left: 0; min-width: 240px;
+      background: rgba(12,10,6,0.97); border-top: 2px solid var(--yellow);
+      padding: 10px 0 14px; opacity: 0; pointer-events: none;
+      transform: translateY(-6px); transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+    .nav-right .dropdown { left: auto; right: 0; }
+    .nav-item:hover .dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .dropdown-link { display: block; padding: 10px 24px; font-size: 11px; letter-spacing: 0.13em; font-weight: 500; text-transform: uppercase; color: rgba(245,240,232,0.75); text-decoration: none; transition: color 0.18s, padding-left 0.18s; }
+    .dropdown-link:hover { color: #fff; padding-left: 30px; }
+    .dropdown-sep { border: none; border-top: 1px solid rgba(242,200,50,0.25); margin: 8px 24px; }
+
+    /* ─── HERO ─── */
+    #page-hero {
+      position: relative; width: 100%; height: 100vh;
+      min-height: 600px; overflow: hidden;
+    }
+    #page-hero img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+    }
+    #page-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 55%, rgba(0,0,0,0.0) 100%);
+    }
+    #page-hero-content {
+      position: absolute; bottom: 90px; left: 80px;
+      z-index: 2; max-width: 560px;
+    }
+    #page-hero-content p {
+      font-family: var(--font-display); font-style: italic;
+      font-size: clamp(22px, 2.4vw, 34px); font-weight: 400;
+      line-height: 1.4; color: #fff;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.4);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 1.1s 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    .hero-cta {
+      display: inline-block; padding: 14px 36px;
+      font-family: var(--font-body); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #1a0e00; background: #fff; text-decoration: none;
+      border: 1.5px solid #fff;
+      transition: background 0.35s, color 0.35s, border-color 0.35s;
+      opacity: 0; animation: fadeUp 1.1s 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    .hero-cta:hover { background: var(--yellow); border-color: var(--yellow); color: #1a0e00; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── CATALOG SECTION ─── */
+    #catalog {
+      background: var(--cream); padding: 80px 0 100px;
+      scroll-margin-top: 80px;
+    }
+    #catalog-header { text-align: center; margin-bottom: 52px; padding: 0 40px; }
+    #catalog-header h2 {
+      font-family: var(--font-display); font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 400; color: #1a0e00; margin-bottom: 12px;
+    }
+    #catalog-header h2 em { font-style: italic; color: var(--yellow); }
+    #catalog-header p { font-size: 14px; color: #7a6a50; letter-spacing: 0.04em; max-width: 420px; margin: 0 auto; }
+
+    /* ─── CATEGORY FILTERS ─── */
+    #category-filters {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 10px; margin-bottom: 48px; padding: 0 40px;
+    }
+    .cat-btn {
+      padding: 9px 20px; font-family: var(--font-body);
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; cursor: pointer; border: 1.5px solid #c8b490;
+      background: transparent; color: #7a6a50;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .cat-btn:hover { background: #f0e8d8; color: #1a0e00; }
+    .cat-btn.active { background: var(--yellow); border-color: var(--yellow); color: #1a0e00; }
+
+    /* ─── PRODUCT GRID ─── */
+    #product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 36px 28px; padding: 0 60px;
+      max-width: 1300px; margin: 0 auto;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    #product-grid.exit {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    #product-grid.enter {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    .product-card { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
+    .product-card:hover .product-img-wrap { transform: translateY(-4px); }
+    .product-img-wrap {
+      width: 100%; aspect-ratio: 1 / 1.1;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px; overflow: hidden;
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    .product-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center;
+      display: block;
+    }
+    .product-cat {
+      font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: #b09060; margin-bottom: 5px; font-weight: 500;
+    }
+    .product-name {
+      font-family: var(--font-body); font-size: 13px; font-weight: 400;
+      color: #1a0e00; line-height: 1.4; max-width: 160px; margin-bottom: 6px;
+    }
+    .product-price {
+      font-family: var(--font-body); font-size: 12px; font-weight: 600;
+      color: #7a6a50; letter-spacing: 0.04em;
+    }
+    .product-price.agotado { color: #c0a080; font-weight: 400; font-style: italic; }
+    .product-card.hidden { display: none; }
+
+    /* ─── PRODUCT MODAL ─── */
+    #product-modal {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(250, 247, 242, 0.97);
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+      overflow-y: auto;
+    }
+    #product-modal.open { opacity: 1; pointer-events: auto; }
+
+    #modal-nav {
+      position: fixed; top: 32px; right: 120px; z-index: 201;
+      display: flex; align-items: center; gap: 24px;
+    }
+    #modal-prev, #modal-next {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--font-body); font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: #7a6a50; padding: 8px 0; transition: color 0.2s;
+    }
+    #modal-prev:hover, #modal-next:hover { color: #1a0e00; }
+
+    #modal-close {
+      position: fixed; top: 32px; right: 40px; z-index: 201;
+      background: none; border: none; cursor: pointer;
+      font-size: 26px; font-weight: 300; line-height: 1;
+      color: #7a6a50; padding: 4px 8px;
+      transition: color 0.2s;
+    }
+    #modal-close:hover { color: #1a0e00; }
+
+    #modal-cart {
+      display: flex; align-items: center; gap: 14px;
+      margin-top: 32px; padding-top: 28px;
+      border-top: 1px solid #e8ddd0;
+    }
+    #modal-qty {
+      display: flex; align-items: center;
+      border: 1px solid #c8b898;
+    }
+    #qty-dec, #qty-inc {
+      background: none; border: none; cursor: pointer;
+      width: 38px; height: 40px; font-size: 18px;
+      color: #3a2a10; transition: background 0.15s;
+    }
+    #qty-dec:hover, #qty-inc:hover { background: #f0e8d8; }
+    #qty-val {
+      width: 34px; text-align: center;
+      font-family: var(--font-body); font-size: 13px;
+      color: #1a0e00; border-left: 1px solid #c8b898; border-right: 1px solid #c8b898;
+      height: 40px; line-height: 40px; user-select: none;
+    }
+    #modal-add-cart {
+      flex: 1; height: 40px; background: #1a0e00; color: #faf7f2;
+      border: none; cursor: pointer; font-family: var(--font-body);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; transition: background 0.2s;
+    }
+    #modal-add-cart:hover { background: #3a2010; }
+    #modal-add-cart:disabled { background: #c8b898; cursor: default; }
+    #modal-wishlist {
+      width: 40px; height: 40px; background: none; flex-shrink: 0;
+      border: 1px solid #c8b898; cursor: pointer; font-size: 17px;
+      color: #c0a080; transition: color 0.2s, border-color 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #modal-wishlist:hover { color: #d04040; border-color: #d04040; }
+    #modal-wishlist.saved { color: #d04040; border-color: #d04040; }
+
+    #modal-inner {
+      max-width: 960px; margin: 0 auto;
+      padding: 80px 60px 80px;
+      width: 100%;
+    }
+
+    #modal-header { text-align: center; margin-bottom: 48px; }
+    #modal-name {
+      font-family: var(--font-body); font-size: clamp(22px, 2.8vw, 38px);
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #1a0e00; margin-bottom: 10px;
+    }
+    #modal-producer {
+      font-family: var(--font-body); font-size: 12px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #7a6a50; text-decoration: underline; text-underline-offset: 4px;
+    }
+    #modal-price {
+      font-family: var(--font-body); font-size: 15px; font-weight: 600;
+      color: #4a3a20; letter-spacing: 0.06em; margin-top: 10px;
+    }
+    #modal-price.agotado { color: #c0a080; font-weight: 400; font-style: italic; }
+
+    #modal-body {
+      display: grid; grid-template-columns: 1fr 1px 1fr;
+      gap: 0 48px; align-items: start;
+      margin-bottom: 52px;
+    }
+
+    #modal-image-wrap {
+      aspect-ratio: 4/3;
+      background: #f0e8d8;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    #modal-image-wrap svg { width: 45%; height: 45%; opacity: 0.2; }
+    #modal-image-wrap span {
+      position: absolute; bottom: 12px; left: 0; right: 0;
+      text-align: center; font-size: 9px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #9a8060;
+    }
+
+    #modal-divider { background: #d4c4a8; align-self: stretch; }
+
+    #modal-description {
+      padding-top: 8px;
+    }
+    #modal-desc-label {
+      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: #b09060; margin-bottom: 16px; font-weight: 600;
+    }
+    #modal-desc-text {
+      font-family: var(--font-display); font-style: italic;
+      font-size: clamp(16px, 1.8vw, 22px); line-height: 1.7;
+      color: #3a2a10; margin-bottom: 24px;
+    }
+    #modal-desc-extra {
+      font-size: 13.5px; line-height: 1.75; color: #5a4a30;
+      font-weight: 300;
+    }
+
+    #modal-meta {
+      border-top: 1px solid #d4c4a8; padding-top: 28px;
+      display: flex; gap: 48px; flex-wrap: wrap;
+    }
+    .meta-item { display: flex; gap: 10px; align-items: baseline; }
+    .meta-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #1a0e00;
+    }
+    .meta-value {
+      font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #7a6a50;
+    }
+
+    /* ─── SITE FOOTER ─── */
+    #site-footer { background: #fff; border-top: 1px solid #e8ddd0; padding: 70px 80px 50px; }
+    #footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 80px; max-width: 1400px; margin: 0 auto; }
+    #footer-info { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; gap: 0 60px; flex: 1; }
+    .footer-col { display: flex; flex-direction: column; gap: 10px; }
+    .footer-divider { background: #e8ddd0; align-self: stretch; }
+    .footer-label { font-size: 13.2px; letter-spacing: 0.22em; text-transform: uppercase; color: #d4a900; font-weight: 600; margin-bottom: 6px; }
+    .footer-name { font-family: var(--font-display); font-size: clamp(23.8px,2.65vw,34.4px); font-weight: 400; color: #1a0e00; line-height: 1.3; margin-bottom: 6px; }
+    .footer-text { font-size: 17.8px; line-height: 1.75; color: #7a6a50; font-weight: 300; }
+    .footer-text a { color: #d4a900; text-decoration: none; }
+    .footer-text a:hover { text-decoration: underline; }
+    #footer-nav { display: flex; flex-direction: column; gap: 14px; padding-left: 60px; border-left: 1px solid #e8ddd0; flex-shrink: 0; }
+    #footer-nav a { font-family: var(--font-body); font-size: 14.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7a6a50; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    #footer-nav a:hover { color: #1a0e00; }
+    #footer-bottom { text-align: center; padding-top: 40px; margin-top: 50px; border-top: 1px solid #e8ddd0; font-size: 14.5px; letter-spacing: 0.08em; color: #b0a090; }
+    @media (max-width: 900px) {
+      #footer-inner { flex-direction: column; }
+      #footer-info { grid-template-columns: 1fr; gap: 40px; }
+      .footer-divider { display: none; }
+      #footer-nav { border-left: none; padding-left: 0; border-top: 1px solid #e8ddd0; padding-top: 40px; flex-direction: row; flex-wrap: wrap; gap: 12px 20px; }
+      #site-footer { padding: 60px 32px 40px; }
+    }
+
+    /* ─── CART BADGE ─── */
+    .cart-badge { position:absolute;top:-5px;right:-5px;background:#d4a900;color:#1a0e00;font-size:8.5px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:var(--font-body);pointer-events:none; }
+
+    /* ─── CART PANEL ─── */
+    #cart-overlay { position:fixed;inset:0;background:rgba(26,14,0,0.38);z-index:299;opacity:0;pointer-events:none;transition:opacity 0.4s ease; }
+    #cart-overlay.open { opacity:1;pointer-events:auto; }
+    #cart-panel { position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:#faf7f2;z-index:300;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);box-shadow:-6px 0 48px rgba(26,14,0,0.14); }
+    #cart-panel.open { transform:translateX(0); }
+    #cart-panel-header { display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-count-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00; }
+    #cart-close { background:none;border:none;cursor:pointer;color:#1a0e00;font-size:18px;line-height:1;padding:4px;opacity:0.45;transition:opacity 0.2s; }
+    #cart-close:hover { opacity:1; }
+    #cart-panel-body { flex:1;overflow-y:auto; }
+    #cart-items { padding:8px 28px 0; }
+    .cart-item { display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid #ede5d8; }
+    .cart-item:last-child { border-bottom:none; }
+    .cart-item-img { width:68px;height:68px;object-fit:contain;background:#fff;border-radius:6px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-item-info { flex:1;min-width:0; }
+    .cart-item-name { font-family:var(--font-body);font-size:13.5px;font-weight:400;color:#1a0e00;margin-bottom:3px; }
+    .cart-item-price { font-family:var(--font-body);font-size:13px;color:#7a6a50;font-weight:300;margin-bottom:10px; }
+    .cart-item-qty { display:flex;align-items:center;gap:8px; }
+    .cart-qty-btn { background:none;border:1px solid #c8baa8;width:28px;height:28px;border-radius:2px;cursor:pointer;font-size:15px;color:#1a0e00;display:flex;align-items:center;justify-content:center;transition:background 0.2s,color 0.2s,border-color 0.2s; }
+    .cart-qty-btn:hover { background:#1a0e00;color:#faf7f2;border-color:#1a0e00; }
+    .cart-qty-num { font-family:var(--font-body);font-size:14px;font-weight:500;color:#1a0e00;min-width:20px;text-align:center; }
+    .cart-item-remove { background:none;border:none;cursor:pointer;color:#c0b0a0;font-size:14px;padding:2px 4px;transition:color 0.2s;flex-shrink:0; }
+    .cart-item-remove:hover { color:#1a0e00; }
+    #cart-empty-msg { text-align:center;padding:52px 28px;font-family:var(--font-body);color:#b0a090;font-size:14px;font-weight:300; }
+    #cart-recommendations { padding:20px 28px;border-top:1px solid #e8ddd0; }
+    .cart-rec-title { font-family:var(--font-body);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;font-weight:600;color:#d4a900;margin-bottom:14px; }
+    .cart-rec-item { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0e8dc; }
+    .cart-rec-item:last-child { border-bottom:none; }
+    .cart-rec-img { width:50px;height:50px;object-fit:contain;background:#fff;border-radius:4px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-rec-info { flex:1;min-width:0; }
+    .cart-rec-name { font-family:var(--font-body);font-size:12.5px;color:#1a0e00;font-weight:400;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .cart-rec-price { font-family:var(--font-body);font-size:11.5px;color:#7a6a50;font-weight:300; }
+    .cart-rec-add { background:none;border:1.5px solid #1a0e00;color:#1a0e00;padding:6px 14px;font-family:var(--font-body);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;cursor:pointer;border-radius:2px;transition:background 0.2s,color 0.2s;flex-shrink:0; }
+    .cart-rec-add:hover { background:#1a0e00;color:#faf7f2; }
+    #cart-panel-footer { padding:20px 28px 28px;border-top:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-subtotal-row { display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px; }
+    #cart-subtotal-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;color:#7a6a50; }
+    #cart-subtotal { font-family:var(--font-display);font-size:26px;font-weight:400;color:#1a0e00; }
+    #cart-go-btn { display:block;width:100%;text-align:center;padding:16px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;text-decoration:none;transition:background 0.25s; }
+    #cart-go-btn:hover { background:#3d1f00; }
+  </style>
+</head>
+<body>
+
+  <!-- Top fade -->
+  <div id="nav-top-fade"></div>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav id="navbar">
+    <ul class="nav-left">
+      <li class="nav-item"><a class="nav-link" href="index.html">Club</a></li>
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Nuestros Quesos</a>
+        <div class="dropdown">
+          <a class="dropdown-link" href="nuestros-quesos.html#maduros">Quesos Maduros y de Guarda</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#blanda">Quesos de Pasta Blanda</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#mantecosos">Quesos Mantecosos</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#cabra">Quesos de Cabra</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#azules">Quesos Azules y Especialidades</a>
+          <hr class="dropdown-sep">
+          <a class="dropdown-link" href="procedencia.html">Procedencia</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+        <div class="dropdown">
+          <a class="dropdown-link" href="acompañamientos.html#tablas">Tablas</a>
+          <a class="dropdown-link" href="acompañamientos.html#sandwiches">Sándwiches</a>
+          <a class="dropdown-link" href="acompañamientos.html#ensaladas">Ensaladas</a>
+          <a class="dropdown-link" href="acompañamientos.html#galletas">Galletas Artesanales</a>
+          <a class="dropdown-link" href="acompañamientos.html#helados">Helados</a>
+          <a class="dropdown-link" href="acompañamientos.html#bebidas">Bebidas</a>
+          <a class="dropdown-link" href="acompañamientos.html#despensa">Despensa</a>
+        </div>
+      </li>
+    </ul>
+
+    <div class="nav-logo-wrap">
+      <a href="index.html"><img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile"></a>
+    </div>
+
+    <ul class="nav-right">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Regalos</a>
+        <div class="dropdown">
+          <a class="dropdown-link" href="#">Cajas Regalo</a>
+          <a class="dropdown-link" href="#">Tablas Personalizadas</a>
+          <a class="dropdown-link" href="#">Empresas</a>
+        </div>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="catering.html">Catering</a></li>
+      <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+      <li class="nav-item">
+        <div class="nav-icons">
+          <button class="nav-icon-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="22" y2="22"></line></svg></button>
+          <button class="nav-icon-btn" aria-label="Mi cuenta"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
+          <button class="nav-icon-btn" aria-label="Carrito" style="position:relative;"><svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg><span class="cart-badge"></span></button>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section id="page-hero">
+    <img src="uploads/Cheese table.jpg" alt="Nuestros Quesos">
+    <div id="page-hero-overlay"></div>
+    <div id="page-hero-content">
+      <p>Quesos artesanales de todo Chile,<br>hechos con tiempo, territorio y sabor real.</p>
+      <a class="hero-cta" href="#catalog">Descubre nuestros quesos ↓</a>
+    </div>
+  </section>
+
+  <!-- ═══ CATALOG ═══ -->
+  <section id="catalog">
+    <div id="catalog-header">
+      <h2><em>Explora</em> todas las categorías</h2>
+      <p>Desde los clásicos de siempre hasta quesos únicos que te invitan a descubrir algo diferente.</p>
+    </div>
+
+    <div id="category-filters">
+      <button class="cat-btn active" data-cat="all">Todos</button>
+      <button class="cat-btn" data-cat="maduros">Maduros y de Guarda</button>
+      <button class="cat-btn" data-cat="blanda">Pasta Blanda</button>
+      <button class="cat-btn" data-cat="mantecosos">Mantecosos</button>
+      <button class="cat-btn" data-cat="cabra">Cabra</button>
+      <button class="cat-btn" data-cat="azules">Azules y Especialidades</button>
+    </div>
+
+    <div id="product-grid"></div>
+  </section>
+
+  <!-- ═══ PRODUCT MODAL ═══ -->
+  <div id="product-modal">
+    <div id="modal-nav">
+      <button id="modal-prev" aria-label="Anterior">&#8592; Anterior</button>
+      <button id="modal-next" aria-label="Siguiente">Siguiente &#8594;</button>
+    </div>
+    <button id="modal-close" aria-label="Cerrar">&#215;</button>
+    <div id="modal-inner">
+      <div id="modal-header">
+        <div id="modal-name"></div>
+        <div id="modal-producer"></div>
+        <div id="modal-price"></div>
+      </div>
+      <div id="modal-body">
+        <div id="modal-image-wrap">
+          <img id="modal-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
+        </div>
+        <div id="modal-divider"></div>
+        <div id="modal-description">
+          <div id="modal-desc-label">Descripción</div>
+          <div id="modal-desc-text"></div>
+          <div id="modal-desc-extra"></div>
+        </div>
+      </div>
+      <div id="modal-meta">
+        <div class="meta-item"><span class="meta-label">Leche:</span><span class="meta-value" id="meta-milk"></span></div>
+        <div class="meta-item"><span class="meta-label">Tratamiento:</span><span class="meta-value" id="meta-treatment"></span></div>
+        <div class="meta-item"><span class="meta-label">Región:</span><span class="meta-value" id="meta-region"></span></div>
+        <div class="meta-item"><span class="meta-label">Familia:</span><span class="meta-value" id="meta-family"></span></div>
+      </div>
+      <div id="modal-cart">
+        <div id="modal-qty">
+          <button id="qty-dec" aria-label="Restar">&#8722;</button>
+          <span id="qty-val">1</span>
+          <button id="qty-inc" aria-label="Sumar">&#43;</button>
+        </div>
+        <button id="modal-add-cart">Agregar al Carro</button>
+        <button id="modal-wishlist" aria-label="Guardar">&#9825;</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="cart.js"></script>
+  <script>
+    // ── Navbar scroll ──
+    const navbar = document.getElementById('navbar');
+    const topFade = document.getElementById('nav-top-fade');
+
+    function updateNav() {
+      if (window.scrollY > window.innerHeight * 0.85) {
+        navbar.classList.add('on-white');
+        topFade.classList.add('light');
+      } else {
+        navbar.classList.remove('on-white');
+        topFade.classList.remove('light');
+      }
+      if (window.scrollY > 30) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+    }
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav();
+
+    // ── Product data ──
+    const PRODUCTS = [
+      // ── MADUROS Y DE GUARDA ──
+      { name: 'Queso Maduro Herencia de Campo 250g', cat: 'maduros', catLabel: 'Maduros y de Guarda', producer: 'Herencia de Campo', milk: 'Cabra', treatment: 'Artesanal', region: 'Valle de Colchagua', family: 'Maduro', price: '$12.500', img: 'uploads/products/herencia.jpg', desc: 'Quesería de autor en el pintoresco Marchigüe, donde la leche de cabra se transforma en quesos excepcionales.', extra: 'Desde la ordeña propia hasta el afinado en cava especializada, cada etapa es meticulosamente supervisada. Un queso para disfrutar en un aperitivo, con un buen vino. Cuña al vacío de 250 grs.' },
+      { name: 'Parmesano tipo Grana Padano', cat: 'maduros', catLabel: 'Maduros y de Guarda', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Chile', family: 'Maduro Extra Duro', price: '$7.500', img: 'uploads/products/parmesano.jpg', desc: 'Pasta cristalizada, sabor único e intenso. Como el mejor Grana Padano italiano, solo para conocedores.', extra: 'Perfecto para rallar, laminar o comer en cubitos en un picoteo. Su característica pasta cristalizada lo hace un queso único. Bloque al vacío de aprox. 260 grs.' },
+      { name: 'Queso Maduro de Oveja', cat: 'maduros', catLabel: 'Maduros y de Guarda', producer: 'Productor Artesanal', milk: 'Oveja', treatment: 'Pasteurizado', region: 'Patagonia Chilena', family: 'Maduro de Oveja', price: '$9.500', img: 'uploads/products/oveja-maduro.jpg', desc: 'De color dorado, sabor intenso y paladar muy cremoso. El top de línea de los quesos de oveja.', extra: 'Marca su diferencia en sabor gracias a la alimentación en las praderas de la imponente Patagonia Chilena. Perfecto para maridar con vinos Gran Reserva o en reemplazo de un postre. Cuña al vacío de 250 grs.' },
+      { name: 'Queso Gruyere', cat: 'maduros', catLabel: 'Maduros y de Guarda', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Termizado', region: 'Los Lagos', family: 'Gruyere', price: '$8.500', img: 'uploads/products/gruyere.jpg', desc: 'Suizo y fundente, perfecto para tablas y fondues.', extra: 'Elaborado siguiendo la tradición suiza, con un sabor dulce y ligeramente a nuez que se intensifica con el tiempo.' },
+      { name: 'Edam Natural', cat: 'maduros', catLabel: 'Maduros y de Guarda', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Chile', family: 'Edam', price: '$6.000', img: 'uploads/products/edam-natural.jpg', desc: 'Bola encerada de consistencia semidura, color amarillo y sabor ligeramente salado.', extra: 'De textura uniforme y elástica, ideal para servir acompañado de frutas, panes y pita chips. Se recomienda maridar con Pinot Noir. Bola encerada de 250 grs.' },
+      { name: 'Edam Merkén', cat: 'maduros', catLabel: 'Maduros y de Guarda', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Chile', family: 'Edam', price: '$6.000', img: 'uploads/products/edam-merken.jpg', desc: 'El clásico Edam con el toque ahumado y picante del merkén chileno.', extra: 'Una versión local que incorpora el merkén mapuche al tradicional Edam holandés. Sabor único, perfecto para tablas con frutas y frutos secos.' },
+      // ── PASTA BLANDA ──
+      { name: 'Nimbus', cat: 'blanda', catLabel: 'Pasta Blanda', producer: 'Colectivo Fermento', milk: 'Vaca', treatment: 'Crudo', region: 'Pirque, R. Metropolitana', family: 'Pasta Blanda Madurada', price: 'Agotado', img: 'uploads/products/nimbus.jpg', desc: 'Queso artesanal de autor, elaborado con técnica y pasión en Pirque.', extra: 'Cada pieza es única, fruto de la experimentación del Colectivo Fermento. Pieza de 250 grs.' },
+      { name: 'Undam', cat: 'blanda', catLabel: 'Pasta Blanda', producer: 'Colectivo Fermento', milk: 'Vaca', treatment: 'Crudo', region: 'Pirque, R. Metropolitana', family: 'Fermentación Láctica', price: '$10.900', img: 'uploads/products/undam.jpg', desc: 'Queso de autor de Pirque. Textura delicada y sabor con carácter propio.', extra: 'Elaborado artesanalmente por el Colectivo Fermento con leche cruda. Pieza de 250 grs.' },
+      { name: 'Queso Camembert Quimán 250g', cat: 'blanda', catLabel: 'Pasta Blanda', producer: 'Quimán', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Chile', family: 'Camembert', price: '$9.500', img: 'uploads/products/camembert-quiman.jpg', desc: 'Pioneros en elaborar camembert en Chile. Corteza florida, interior cremoso.', extra: 'Perfecto para combinar con miel, mermeladas o frutos secos. También brilla en tablas de aperitivo y recetas calientes. Formato 250 g aprox.' },
+      { name: 'Camembert Cahuelche', cat: 'blanda', catLabel: 'Pasta Blanda', producer: 'Cahuelche', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Chile', family: 'Camembert', price: '$7.800', img: 'uploads/products/cahuelche.jpg', desc: 'Camembert artesanal chileno, corteza blanca aterciopelada e interior fundente.', extra: 'Elaborado con técnica francesa en Chile. En su punto óptimo, casi líquido en el centro. Perfecto para cualquier tabla.' },
+      { name: 'Burrata Fior di Latte 160g', cat: 'blanda', catLabel: 'Pasta Blanda', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Artesanal', region: 'Chile', family: 'Pasta Filata', price: '$7.000', img: 'uploads/products/burrata.jpg', desc: 'Hecha a mano con la receta italiana tradicional, sin preservantes ni colorantes.', extra: 'Pote reutilizable con 2 bolas de 80 grs. cada una. Leche natural, elaboración artesanal pura.' },
+      // ── MANTECOSOS ──
+      { name: 'Mantecoso Madurado Los Muermos', cat: 'mantecosos', catLabel: 'Mantecosos', producer: 'Los Muermos', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Los Muermos, Los Lagos', family: 'Mantecoso Madurado', price: '$14.000', img: 'uploads/products/muermos.jpg', desc: 'Más de 20 años de historia familiar. Textura cremosa y sabor suave con cuerpo de maduración.', extra: 'Sebastián, su apasionado dueño, supervisa cada etapa del proceso tradicional. Solo ingredientes naturales de animales propios en praderas abiertas. Ideal para sándwiches, tablas o fundir. Rueda de 1 kg.' },
+      { name: 'Queso Mantecoso Komuy', cat: 'mantecosos', catLabel: 'Mantecosos', producer: 'Komuy', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Araucanía', family: 'Mantecoso', price: '$14.500', img: 'uploads/products/komuy.jpg', desc: 'Para los amantes de los quesos más jóvenes o mantecosos. No pueden dejar de probarlo.', extra: 'Elaborado artesanalmente en La Araucanía con leche fresca de pequeño productor. Textura suave y sabor a campo. Pieza rectangular de 1 kg aproximado.' },
+      { name: 'Mantecoso Ahumado Natural', cat: 'mantecosos', catLabel: 'Mantecosos', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Los Lagos', family: 'Mantecoso Ahumado', price: '$9.000', img: 'uploads/products/ahumado.jpg', desc: 'Ahumado natural que transforma completamente el mantecoso clásico del sur.', extra: 'El proceso de ahumado en frío con madera nativa del sur entrega una capa de sabor única y profunda. Pieza redonda de 500 grs. aprox.' },
+      // ── CABRA ──
+      { name: 'Queso de Cabra Huancarane 500g', cat: 'cabra', catLabel: 'Cabra', producer: 'Huancarane', milk: 'Cabra', treatment: 'Pasteurizado', region: 'Arica y Parinacota', family: 'Queso de Cabra Fresco', price: '$11.500', img: 'uploads/products/cabra-500.jpg', desc: 'Primera planta procesadora en la Región de Arica. Método ancestral, solo ingredientes naturales.', extra: 'Origen Torres de Huancare, Región de Arica y Parinacota. Proceso productivo basado en método ancestral. Formato redondo al vacío.' },
+      { name: 'Queso de Cabra con Aceitunas de Azapa', cat: 'cabra', catLabel: 'Cabra', producer: 'Huancarane', milk: 'Cabra', treatment: 'Pasteurizado', region: 'Arica y Parinacota', family: 'Queso de Cabra con Adición', price: '$11.500', img: 'uploads/products/cabra-aceitunas.jpg', desc: 'Queso de cabra artesanal con las famosas aceitunas de Azapa del norte de Chile.', extra: 'Las aceitunas de Azapa aportan un contraste mediterráneo que complementa brillantemente la acidez del queso de cabra. Origen Torres de Huancare. Formato redondo 250 grs. al vacío.' },
+      // ── AZULES Y ESPECIALIDADES ──
+      { name: 'Queso Azul 100% Natural', cat: 'azules', catLabel: 'Azules y Especialidades', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Chile', family: 'Queso Azul', price: '$6.500', img: 'uploads/products/azul.jpg', desc: 'Sabor intenso, un poco picante y con su color azul característico. Se puede madurar aún más en casa.', extra: 'Rico en vitaminas A, D, E y grupo B. Perfecto para tablas, salsas para pastas o carnes, ensaladas y pizzas. Trozos al vacío de 100–150 grs aprox.' },
+      { name: 'Mozzarella Pizzera 500g', cat: 'azules', catLabel: 'Azules y Especialidades', producer: 'Productor Artesanal', milk: 'Vaca', treatment: 'Pasteurizado', region: 'Chile', family: 'Pasta Filata', price: '$9.500', img: 'uploads/products/mozzarella.jpg', desc: 'Fresca y fundente, ideal para pizzas y ensaladas.', extra: 'Mozzarella de pasta hilada elaborada fresca. Se funde de manera uniforme y forma los característicos hilos al servirse caliente. 500 grs.' },
+      { name: 'Queso Feta de Oveja', cat: 'azules', catLabel: 'Azules y Especialidades', producer: 'Productor Artesanal', milk: 'Oveja', treatment: 'Pasteurizado', region: 'Patagonia Chilena', family: 'Feta', price: '$7.500', img: 'uploads/products/feta.jpg', desc: 'Uno de los quesos más antiguos del mundo, elaborado 100% con leche de oveja en la Patagonia Chilena.', extra: 'Pasta blanca, blanda, de textura cremosa. Maduración en salmuera al 8% por un mínimo de 60 días. Perfecto en ensaladas, rellenos y consumo directo. Conservar entre 4 y 5°C.' },
+      { name: 'Queso Semimaduro de Oveja', cat: 'azules', catLabel: 'Azules y Especialidades', producer: 'Productor Artesanal', milk: 'Oveja', treatment: 'Pasteurizado', region: 'Patagonia Chilena', family: 'Semimaduro', price: '$9.000', img: 'uploads/products/semimaduro-oveja.jpg', desc: 'Elegancia en el paladar que no deja de sorprender. Producido íntegramente en la Patagonia Chilena.', extra: 'Ideal solo o combinado con miel o dulce de membrillo casero. Puede servirse como postre. Recomendado en rellenos para comidas finas. Al cocinarse no entrega agua. Conservar entre 4 y 6°C.' },
+    ];
+
+    let currentFiltered = [];
+    let currentIndex = 0;
+
+    function openModal(p, index) {
+      currentIndex = index;
+      document.getElementById('modal-name').textContent = p.name;
+      document.getElementById('modal-producer').textContent = p.producer;
+      const priceEl = document.getElementById('modal-price');
+      priceEl.textContent = p.price;
+      priceEl.className = p.price === 'Agotado' ? 'agotado' : '';
+      const imgEl = document.getElementById('modal-img');
+      imgEl.src = p.img;
+      imgEl.alt = p.name;
+      document.getElementById('modal-desc-text').textContent = p.desc;
+      document.getElementById('modal-desc-extra').textContent = p.extra;
+      document.getElementById('meta-milk').textContent = p.milk;
+      document.getElementById('meta-treatment').textContent = p.treatment;
+      document.getElementById('meta-region').textContent = p.region;
+      document.getElementById('meta-family').textContent = p.family;
+      document.getElementById('qty-val').textContent = '1';
+      document.getElementById('modal-wishlist').className = '';
+      document.getElementById('modal-wishlist').innerHTML = '&#9825;';
+      const addBtn = document.getElementById('modal-add-cart');
+      addBtn.disabled = p.price === 'Agotado';
+      addBtn.textContent = p.price === 'Agotado' ? 'Agotado' : 'Agregar al Carro';
+      document.getElementById('modal-prev').style.visibility = index > 0 ? 'visible' : 'hidden';
+      document.getElementById('modal-next').style.visibility = index < currentFiltered.length - 1 ? 'visible' : 'hidden';
+      const modal = document.getElementById('product-modal');
+      modal.classList.add('open');
+      modal.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+
+    document.getElementById('modal-close').addEventListener('click', () => {
+      document.getElementById('product-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    });
+    document.getElementById('product-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        e.currentTarget.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.getElementById('product-modal').classList.remove('open');
+        document.body.style.overflow = '';
+      }
+      if (e.key === 'ArrowLeft' && document.getElementById('product-modal').classList.contains('open')) {
+        if (currentIndex > 0) openModal(currentFiltered[currentIndex - 1], currentIndex - 1);
+      }
+      if (e.key === 'ArrowRight' && document.getElementById('product-modal').classList.contains('open')) {
+        if (currentIndex < currentFiltered.length - 1) openModal(currentFiltered[currentIndex + 1], currentIndex + 1);
+      }
+    });
+
+    document.getElementById('modal-prev').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentIndex > 0) openModal(currentFiltered[currentIndex - 1], currentIndex - 1);
+    });
+    document.getElementById('modal-next').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (currentIndex < currentFiltered.length - 1) openModal(currentFiltered[currentIndex + 1], currentIndex + 1);
+    });
+
+    document.getElementById('qty-dec').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const v = document.getElementById('qty-val');
+      if (parseInt(v.textContent) > 1) v.textContent = parseInt(v.textContent) - 1;
+    });
+    document.getElementById('qty-inc').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const v = document.getElementById('qty-val');
+      v.textContent = parseInt(v.textContent) + 1;
+    });
+
+    document.getElementById('modal-wishlist').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const btn = e.currentTarget;
+      btn.classList.toggle('saved');
+      btn.innerHTML = btn.classList.contains('saved') ? '&#9829;' : '&#9825;';
+    });
+
+    document.getElementById('modal-add-cart').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const p = currentFiltered[currentIndex];
+      if (!p || p.price === 'Agotado') return;
+      const numericPrice = parseInt(p.price.replace(/[$\.]/g, ''));
+      const id = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const qty = parseInt(document.getElementById('qty-val').textContent) || 1;
+      const item = { id, name: p.name, price: numericPrice, img: p.img };
+      for (let i = 0; i < qty; i++) LQDC.addItem(item);
+      LQDC.openPanel();
+    });
+
+    function renderProducts(filter) {
+      currentFiltered = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === filter);
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '';
+      currentFiltered.forEach((p, i) => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div class="product-img-wrap">
+            <img src="${p.img}" alt="${p.name}" loading="lazy">
+          </div>
+          <div class="product-cat">${p.catLabel}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-price ${p.price === 'Agotado' ? 'agotado' : ''}">${p.price}</div>
+        `;
+        card.addEventListener('click', () => openModal(p, i));
+        grid.appendChild(card);
+      });
+    }
+
+    const validCats = ['maduros','blanda','mantecosos','cabra','azules'];
+
+    let hashFilterInitialized = false;
+    function applyHashFilter() {
+      const hash = window.location.hash.replace('#','');
+      const cat = validCats.includes(hash) ? hash : 'all';
+      const current = document.querySelector('.cat-btn.active');
+      if (hashFilterInitialized && current && current.dataset.cat === cat) return;
+      const isFirstLoad = !hashFilterInitialized;
+      hashFilterInitialized = true;
+      const grid = document.getElementById('product-grid');
+      grid.classList.add('exit');
+      setTimeout(() => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+        renderProducts(cat);
+        grid.classList.remove('exit');
+        grid.classList.add('enter');
+        requestAnimationFrame(() => requestAnimationFrame(() => grid.classList.remove('enter')));
+        // Only scroll to catalog if a specific category was requested
+        if (validCats.includes(hash)) {
+          document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
+        }
+      }, isFirstLoad ? 0 : 250);
+    }
+
+    applyHashFilter();
+    window.addEventListener('hashchange', applyHashFilter);
+
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('active')) return;
+        const grid = document.getElementById('product-grid');
+
+        grid.classList.add('exit');
+
+        setTimeout(() => {
+          document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderProducts(btn.dataset.cat);
+
+          grid.classList.remove('exit');
+          grid.classList.add('enter');
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              grid.classList.remove('enter');
+            });
+          });
+        }, 260);
+      });
+    });
+  </script>
+
+  <!-- ═══ SITE FOOTER ═══ -->
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div id="footer-info">
+        <div class="footer-col" style="justify-content:center;">
+          <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile" style="width:100%;height:auto;display:block;">
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Horarios</p>
+          <p class="footer-text">Lunes a viernes: 9:00 am – 8:30 pm<br>Sábado: 10:00 am – 6:30 pm<br>Domingo: cerrado</p>
+          <p class="footer-text" style="margin-top:10px;"><a href="https://maps.google.com/?q=Nueva+de+Lyon+116+Providencia" target="_blank">Nueva de Lyon 116, local 3, Providencia</a><br>A media cuadra del metro Los Leones</p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Contacto</p>
+          <p class="footer-text"><a href="https://wa.me/56992656723">+56 9 9265 6723</a><br><a href="mailto:contacto@losquesosdechile.cl">contacto@losquesosdechile.cl</a></p>
+          <div style="display:flex;gap:16px;margin-top:16px;">
+            <a href="https://www.instagram.com/losquesosdechile" target="_blank" aria-label="Instagram" style="display:inline-flex;opacity:0.75;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5.5" stroke="#1a0e00" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" stroke="#1a0e00" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.1" fill="#1a0e00"/></svg>
+            </a>
+            <a href="https://www.facebook.com/losquesosdechile" target="_blank" aria-label="Facebook" style="display:inline-flex;opacity:0.75;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 2h-3a5 5 0 0 0-5 5v3H6v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" stroke="#1a0e00" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <nav id="footer-nav">
+        <a href="index.html">Inicio</a>
+        <a href="nuestros-quesos.html">Nuestros Quesos</a>
+        <a href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+        <a href="catering.html">Catering</a>
+        <a href="nosotros.html">Nosotros</a>
+        <a href="#">Contacto</a>
+      </nav>
+    </div>
+    <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
+  </footer>
+
+  <!-- Cart panel -->
+  <div id="cart-overlay"></div>
+  <div id="cart-panel">
+    <div id="cart-panel-header">
+      <span id="cart-count-label">Tu carrito</span>
+      <button id="cart-close" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div id="cart-panel-body">
+      <div id="cart-items"></div>
+      <div id="cart-recommendations">
+        <p class="cart-rec-title">Completa tu carrito</p>
+        <div id="cart-rec-list"></div>
+      </div>
+    </div>
+    <div id="cart-panel-footer">
+      <div id="cart-subtotal-row">
+        <span id="cart-subtotal-label">Subtotal</span>
+        <span id="cart-subtotal">$0</span>
+      </div>
+      <a href="carrito.html" id="cart-go-btn">Ir a carrito</a>
+    </div>
+  </div>
+
+</body>
+</html>

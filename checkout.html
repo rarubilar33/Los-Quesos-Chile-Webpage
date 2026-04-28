@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finalizar compra — Los Quesos de Chile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yellow: #F2C832;
+      --yellow-dark: #d4a900;
+      --font-body: 'Jost', sans-serif;
+      --font-display: 'Cormorant Garamond', serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: #fff; color: #1a0e00; overflow-x: hidden; }
+
+    /* ─── NAVBAR ─── */
+    #nav-top-fade { position:fixed;top:0;left:0;right:0;height:90px;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 100%);pointer-events:none;z-index:98; }
+    #navbar { position:fixed;top:0;left:0;right:0;z-index:99;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 40px;background:transparent;transition:height 0.45s,background 0.45s; }
+    #navbar.scrolled { background:rgba(26,14,0,0.96);backdrop-filter:blur(10px);height:54px; }
+    .nav-logo-wrap img { height:60px;width:auto;display:block;transition:height 0.45s; }
+    #navbar.scrolled .nav-logo-wrap img { height:44px; }
+    .nav-links { display:flex;gap:32px;list-style:none; }
+    .nav-link { font-family:var(--font-body);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#f5f0e8;text-decoration:none;font-weight:500; }
+    .nav-link:hover { color:#fff; }
+    .nav-icons { display:flex;align-items:center;gap:6px;margin-left:8px; }
+    .nav-icon-btn { display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:transparent;color:#f5f0e8;cursor:pointer;border-radius:50%;transition:background 0.2s; }
+    .nav-icon-btn:hover { background:rgba(255,255,255,0.1); }
+    .nav-icon-btn svg { width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round; }
+    .cart-badge { position:absolute;top:-5px;right:-5px;background:#d4a900;color:#1a0e00;font-size:8.5px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:var(--font-body);pointer-events:none; }
+
+    /* ─── PAGE LAYOUT ─── */
+    #checkout-page { max-width:1160px;margin:0 auto;padding:130px 40px 80px; }
+    .checkout-page-label { font-family:var(--font-body);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#d4a900;font-weight:600;margin-bottom:16px;display:block; }
+    .checkout-page-title { font-family:var(--font-display);font-size:clamp(36px,4vw,56px);font-weight:400;color:#1a0e00;margin-bottom:48px; }
+    #checkout-layout { display:grid;grid-template-columns:1fr 360px;gap:60px;align-items:start; }
+
+    /* ─── FORM SECTIONS ─── */
+    .form-section { margin-bottom:44px; }
+    .form-section:last-of-type { margin-bottom:0; }
+    .form-section-title { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #e8ddd0; }
+
+    /* ─── FLOATING LABEL INPUTS ─── */
+    .field-group { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    .field-group.full { grid-template-columns:1fr; }
+    .field-group.three { grid-template-columns:1fr 1fr 1fr; }
+    .field-wrap { position:relative;margin-bottom:16px; }
+    .field-wrap input,
+    .field-wrap select {
+      width:100%;padding:20px 16px 8px;border:1px solid #d4c8b8;background:#fff;
+      font-family:var(--font-body);font-size:14px;font-weight:400;color:#1a0e00;
+      outline:none;transition:border-color 0.2s;appearance:none;border-radius:0;
+    }
+    .field-wrap input:focus,
+    .field-wrap select:focus { border-color:#1a0e00; }
+    .field-wrap label {
+      position:absolute;left:16px;top:50%;transform:translateY(-50%);
+      font-family:var(--font-body);font-size:13px;font-weight:400;color:#b0a090;
+      pointer-events:none;transition:top 0.18s,font-size 0.18s,color 0.18s,transform 0.18s;
+    }
+    .field-wrap input:focus ~ label,
+    .field-wrap input:not(:placeholder-shown) ~ label,
+    .field-wrap select:focus ~ label,
+    .field-wrap.has-value label {
+      top:10px;transform:none;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#d4a900;font-weight:600;
+    }
+    .field-wrap select { color:#b0a090; }
+    .field-wrap select.selected { color:#1a0e00; }
+    /* select arrow */
+    .field-wrap.select-wrap::after {
+      content:'';position:absolute;right:16px;top:50%;transform:translateY(-50%);
+      width:8px;height:8px;border-right:1.5px solid #7a6a50;border-bottom:1.5px solid #7a6a50;
+      transform:translateY(-70%) rotate(45deg);pointer-events:none;
+    }
+
+    /* ─── PAYMENT OPTIONS ─── */
+    .payment-options { display:flex;flex-direction:column;gap:12px; }
+    .payment-option { display:flex;align-items:center;gap:14px;padding:18px 20px;border:1.5px solid #e8ddd0;cursor:pointer;transition:border-color 0.2s,background 0.2s; }
+    .payment-option:has(input:checked) { border-color:#1a0e00;background:#faf7f2; }
+    .payment-option input[type="radio"] { appearance:none;width:18px;height:18px;border:1.5px solid #c8baa8;border-radius:50%;flex-shrink:0;position:relative;cursor:pointer;transition:border-color 0.2s; }
+    .payment-option input[type="radio"]:checked { border-color:#1a0e00; }
+    .payment-option input[type="radio"]::after { content:'';position:absolute;inset:3px;background:#1a0e00;border-radius:50%;opacity:0;transition:opacity 0.15s; }
+    .payment-option input[type="radio"]:checked::after { opacity:1; }
+    .payment-option-label { font-family:var(--font-body);font-size:13.5px;font-weight:400;color:#1a0e00; }
+    .payment-option-sub { font-family:var(--font-body);font-size:11.5px;font-weight:300;color:#b0a090;margin-top:2px; }
+    .payment-option-icon { margin-left:auto;display:flex;gap:6px;flex-shrink:0; }
+    .card-chip { width:34px;height:22px;border-radius:3px;background:#e8ddd0;display:flex;align-items:center;justify-content:center; }
+    .card-chip svg { width:18px;height:18px;fill:#b0a090; }
+
+    /* credit card fields (shown/hidden) */
+    #card-fields { margin-top:16px;display:none; }
+    #card-fields.visible { display:block; }
+
+    /* ─── SUBMIT ─── */
+    #confirm-btn {
+      display:block;width:100%;text-align:center;padding:18px;
+      background:#1a0e00;color:#faf7f2;font-family:var(--font-body);
+      font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;
+      border:none;cursor:pointer;margin-top:32px;transition:background 0.25s;
+    }
+    #confirm-btn:hover { background:#3d1f00; }
+
+    /* ─── ORDER SUMMARY SIDEBAR ─── */
+    #order-summary { background:#faf7f2;padding:32px;position:sticky;top:100px; }
+    .os-title { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00;margin-bottom:22px; }
+    #os-items { margin-bottom:22px;border-bottom:1px solid #e8ddd0;padding-bottom:22px; }
+    .os-item { display:flex;align-items:center;gap:12px;padding:8px 0; }
+    .os-item-img-wrap { position:relative;flex-shrink:0; }
+    .os-item-img { width:54px;height:54px;object-fit:contain;background:#fff;border-radius:4px;border:1px solid #ede5d8; }
+    .os-item-qty-badge { position:absolute;top:-7px;right:-7px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:9px;font-weight:700;min-width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center; }
+    .os-item-info { flex:1;min-width:0; }
+    .os-item-name { font-family:var(--font-body);font-size:12.5px;font-weight:400;color:#1a0e00;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .os-item-price { font-family:var(--font-body);font-size:11.5px;color:#7a6a50;font-weight:300; }
+    .os-row { display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--font-body);font-size:13.5px;color:#7a6a50;font-weight:300; }
+    .os-row.total { border-top:1px solid #e8ddd0;padding-top:14px;margin-top:4px;font-weight:500; }
+    .os-row.total span:first-child { font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#1a0e00;font-weight:600; }
+    .os-row.total span:last-child { font-family:var(--font-display);font-size:26px;font-weight:400;color:#1a0e00; }
+    #os-empty { padding:28px 0;text-align:center;font-family:var(--font-body);font-size:13px;font-weight:300;color:#b0a090; }
+    .os-back { display:block;text-align:center;margin-top:16px;font-family:var(--font-body);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#7a6a50;text-decoration:none;font-weight:500;transition:color 0.2s; }
+    .os-back:hover { color:#1a0e00; }
+
+    /* ─── CART PANEL ─── */
+    #cart-overlay { position:fixed;inset:0;background:rgba(26,14,0,0.38);z-index:199;opacity:0;pointer-events:none;transition:opacity 0.4s ease; }
+    #cart-overlay.open { opacity:1;pointer-events:auto; }
+    #cart-panel { position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:#faf7f2;z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);box-shadow:-6px 0 48px rgba(26,14,0,0.14); }
+    #cart-panel.open { transform:translateX(0); }
+    #cart-panel-header { display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-count-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00; }
+    #cart-close { background:none;border:none;cursor:pointer;color:#1a0e00;font-size:18px;line-height:1;padding:4px;opacity:0.45;transition:opacity 0.2s; }
+    #cart-close:hover { opacity:1; }
+    #cart-panel-body { flex:1;overflow-y:auto; }
+    #cart-items { padding:8px 28px 0; }
+    .cart-item { display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid #ede5d8; }
+    .cart-item:last-child { border-bottom:none; }
+    .cart-item-img { width:68px;height:68px;object-fit:contain;background:#fff;border-radius:6px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-item-info { flex:1;min-width:0; }
+    .cart-item-name { font-family:var(--font-body);font-size:13.5px;font-weight:400;color:#1a0e00;margin-bottom:3px; }
+    .cart-item-price { font-family:var(--font-body);font-size:13px;color:#7a6a50;font-weight:300;margin-bottom:10px; }
+    .cart-item-qty { display:flex;align-items:center;gap:8px; }
+    .cart-item-remove { background:none;border:none;cursor:pointer;color:#c0b0a0;font-size:14px;padding:2px 4px;transition:color 0.2s;flex-shrink:0; }
+    .cart-item-remove:hover { color:#1a0e00; }
+    #cart-empty-msg { text-align:center;padding:52px 28px;font-family:var(--font-body);color:#b0a090;font-size:14px;font-weight:300; }
+    #cart-recommendations { padding:20px 28px;border-top:1px solid #e8ddd0; }
+    .cart-rec-title { font-family:var(--font-body);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;font-weight:600;color:#d4a900;margin-bottom:14px; }
+    .cart-rec-item { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0e8dc; }
+    .cart-rec-item:last-child { border-bottom:none; }
+    .cart-rec-img { width:50px;height:50px;object-fit:contain;background:#fff;border-radius:4px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-rec-info { flex:1;min-width:0; }
+    .cart-rec-name { font-family:var(--font-body);font-size:12.5px;color:#1a0e00;font-weight:400;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .cart-rec-price { font-family:var(--font-body);font-size:11.5px;color:#7a6a50;font-weight:300; }
+    .cart-rec-add { background:none;border:1.5px solid #1a0e00;color:#1a0e00;padding:6px 14px;font-family:var(--font-body);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;cursor:pointer;border-radius:2px;transition:background 0.2s,color 0.2s;flex-shrink:0; }
+    .cart-rec-add:hover { background:#1a0e00;color:#faf7f2; }
+    .cart-qty-btn { background:none;border:1px solid #c8baa8;width:28px;height:28px;border-radius:2px;cursor:pointer;font-size:15px;color:#1a0e00;display:flex;align-items:center;justify-content:center;transition:background 0.2s,color 0.2s,border-color 0.2s; }
+    .cart-qty-btn:hover { background:#1a0e00;color:#faf7f2;border-color:#1a0e00; }
+    .cart-qty-num { font-family:var(--font-body);font-size:14px;font-weight:500;color:#1a0e00;min-width:20px;text-align:center; }
+    #cart-panel-footer { padding:20px 28px 28px;border-top:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-subtotal-row { display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px; }
+    #cart-subtotal-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;color:#7a6a50; }
+    #cart-subtotal { font-family:var(--font-display);font-size:26px;font-weight:400;color:#1a0e00; }
+    #cart-go-btn { display:block;width:100%;text-align:center;padding:16px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;text-decoration:none;transition:background 0.25s; }
+    #cart-go-btn:hover { background:#3d1f00; }
+
+    /* ─── SITE FOOTER ─── */
+    #site-footer { background: #fff; border-top: 1px solid #e8ddd0; padding: 70px 80px 50px; }
+    #footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 80px; max-width: 1400px; margin: 0 auto; }
+    #footer-info { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; gap: 0 60px; flex: 1; }
+    .footer-col { display: flex; flex-direction: column; gap: 10px; }
+    .footer-divider { background: #e8ddd0; align-self: stretch; }
+    .footer-label { font-size: 13.2px; letter-spacing: 0.22em; text-transform: uppercase; color: #d4a900; font-weight: 600; margin-bottom: 6px; }
+    .footer-text { font-size: 17.8px; line-height: 1.75; color: #7a6a50; font-weight: 300; }
+    .footer-text a { color: #d4a900; text-decoration: none; }
+    .footer-text a:hover { text-decoration: underline; }
+    #footer-nav { display: flex; flex-direction: column; gap: 14px; padding-left: 60px; border-left: 1px solid #e8ddd0; flex-shrink: 0; }
+    #footer-nav a { font-family: var(--font-body); font-size: 14.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7a6a50; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    #footer-nav a:hover { color: #1a0e00; }
+    #footer-bottom { text-align: center; padding-top: 40px; margin-top: 50px; border-top: 1px solid #e8ddd0; font-size: 14.5px; letter-spacing: 0.08em; color: #b0a090; }
+
+    /* ─── CONFIRMATION OVERLAY ─── */
+    #order-confirmed { position:fixed;inset:0;background:rgba(26,14,0,0.6);z-index:400;display:none;align-items:center;justify-content:center; }
+    #order-confirmed.show { display:flex; }
+    #confirmed-box { background:#faf7f2;padding:56px 64px;max-width:480px;width:90%;text-align:center; }
+    .confirmed-icon { width:56px;height:56px;border-radius:50%;background:#1a0e00;display:flex;align-items:center;justify-content:center;margin:0 auto 24px; }
+    .confirmed-icon svg { width:26px;height:26px;stroke:#faf7f2;stroke-width:2;fill:none; }
+    .confirmed-label { font-family:var(--font-body);font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:#d4a900;font-weight:600;margin-bottom:12px;display:block; }
+    .confirmed-title { font-family:var(--font-display);font-size:clamp(28px,3vw,40px);font-weight:400;color:#1a0e00;margin-bottom:14px; }
+    .confirmed-text { font-family:var(--font-body);font-size:14px;font-weight:300;color:#7a6a50;line-height:1.7;margin-bottom:32px; }
+    #confirmed-close { display:inline-block;padding:15px 36px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;text-decoration:none;transition:background 0.25s;border:none;cursor:pointer; }
+    #confirmed-close:hover { background:#3d1f00; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width:900px) {
+      #checkout-layout { grid-template-columns:1fr; }
+      #order-summary { position:static; }
+      #footer-inner { flex-direction:column; }
+      #footer-info { grid-template-columns:1fr;gap:40px; }
+      .footer-divider { display:none; }
+      #footer-nav { border-left:none;padding-left:0;border-top:1px solid #e8ddd0;padding-top:40px; }
+      #site-footer { padding:60px 32px 40px; }
+      #checkout-page { padding:110px 24px 60px; }
+      .field-group { grid-template-columns:1fr; }
+      .field-group.three { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="nav-top-fade"></div>
+  <nav id="navbar">
+    <a href="index.html" class="nav-logo-wrap">
+      <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile">
+    </a>
+    <ul class="nav-links">
+      <li><a class="nav-link" href="nuestros-quesos.html">Quesos</a></li>
+      <li><a class="nav-link" href="acompañamientos.html">Acompañamientos</a></li>
+      <li><a class="nav-link" href="catering.html">Catering</a></li>
+      <li><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+    </ul>
+    <div class="nav-icons">
+      <button class="nav-icon-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="22" y2="22"></line></svg></button>
+      <button class="nav-icon-btn" aria-label="Mi cuenta"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
+      <button class="nav-icon-btn" aria-label="Carrito" style="position:relative;">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <span class="cart-badge"></span>
+      </button>
+    </div>
+  </nav>
+
+  <div id="checkout-page">
+    <span class="checkout-page-label">Checkout</span>
+    <h1 class="checkout-page-title">Finalizar compra</h1>
+
+    <div id="checkout-layout">
+
+      <!-- ── FORM ── -->
+      <form id="checkout-form" novalidate>
+
+        <!-- Contact -->
+        <div class="form-section">
+          <p class="form-section-title">Información de contacto</p>
+          <div class="field-group">
+            <div class="field-wrap">
+              <input type="text" id="f-name" name="name" placeholder=" " autocomplete="name" required>
+              <label for="f-name">Nombre completo</label>
+            </div>
+            <div class="field-wrap">
+              <input type="email" id="f-email" name="email" placeholder=" " autocomplete="email" required>
+              <label for="f-email">Correo electrónico</label>
+            </div>
+          </div>
+          <div class="field-group full">
+            <div class="field-wrap">
+              <input type="tel" id="f-phone" name="phone" placeholder=" " autocomplete="tel">
+              <label for="f-phone">Teléfono (opcional)</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping -->
+        <div class="form-section">
+          <p class="form-section-title">Dirección de envío</p>
+          <div class="field-group full">
+            <div class="field-wrap">
+              <input type="text" id="f-address" name="address" placeholder=" " autocomplete="street-address" required>
+              <label for="f-address">Dirección</label>
+            </div>
+          </div>
+          <div class="field-group">
+            <div class="field-wrap">
+              <input type="text" id="f-city" name="city" placeholder=" " autocomplete="address-level2" required>
+              <label for="f-city">Ciudad</label>
+            </div>
+            <div class="field-wrap select-wrap">
+              <select id="f-region" name="region" required>
+                <option value="" disabled selected></option>
+                <option>Región Metropolitana</option>
+                <option>Valparaíso</option>
+                <option>Biobío</option>
+                <option>La Araucanía</option>
+                <option>Los Lagos</option>
+                <option>Maule</option>
+                <option>O'Higgins</option>
+                <option>Antofagasta</option>
+                <option>Atacama</option>
+                <option>Coquimbo</option>
+                <option>Los Ríos</option>
+                <option>Ñuble</option>
+                <option>Aysén</option>
+                <option>Magallanes</option>
+                <option>Tarapacá</option>
+                <option>Arica y Parinacota</option>
+              </select>
+              <label for="f-region">Región</label>
+            </div>
+          </div>
+          <div class="field-group full">
+            <div class="field-wrap">
+              <input type="text" id="f-notes" name="notes" placeholder=" ">
+              <label for="f-notes">Instrucciones de entrega (opcional)</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="form-section">
+          <p class="form-section-title">Método de pago</p>
+          <div class="payment-options">
+            <label class="payment-option">
+              <input type="radio" name="payment" value="card" checked>
+              <div>
+                <div class="payment-option-label">Tarjeta de crédito / débito</div>
+                <div class="payment-option-sub">Visa, Mastercard, Redcompra</div>
+              </div>
+              <div class="payment-option-icon">
+                <div class="card-chip"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10" stroke="#b0a090" stroke-width="1.5"/></svg></div>
+              </div>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="transfer">
+              <div>
+                <div class="payment-option-label">Transferencia bancaria</div>
+                <div class="payment-option-sub">Recibirás los datos por correo al confirmar</div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Card details (shown when card is selected) -->
+          <div id="card-fields" class="visible">
+            <div class="field-group full" style="margin-top:16px;">
+              <div class="field-wrap">
+                <input type="text" id="f-card-num" name="card-number" placeholder=" " autocomplete="cc-number" inputmode="numeric" maxlength="19">
+                <label for="f-card-num">Número de tarjeta</label>
+              </div>
+            </div>
+            <div class="field-group three">
+              <div class="field-wrap">
+                <input type="text" id="f-card-name" name="card-name" placeholder=" " autocomplete="cc-name">
+                <label for="f-card-name">Nombre en la tarjeta</label>
+              </div>
+              <div class="field-wrap">
+                <input type="text" id="f-card-exp" name="card-exp" placeholder=" " autocomplete="cc-exp" maxlength="5">
+                <label for="f-card-exp">Vencimiento (MM/AA)</label>
+              </div>
+              <div class="field-wrap">
+                <input type="text" id="f-card-cvv" name="card-cvv" placeholder=" " autocomplete="cc-csc" maxlength="4" inputmode="numeric">
+                <label for="f-card-cvv">CVV</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="confirm-btn">Confirmar pedido</button>
+      </form>
+
+      <!-- ── ORDER SUMMARY ── -->
+      <div id="order-summary">
+        <p class="os-title">Tu pedido</p>
+        <div id="os-items"></div>
+        <div class="os-row"><span>Subtotal</span><span id="os-subtotal">$0</span></div>
+        <div class="os-row"><span>Despacho</span><span>Calculado al confirmar</span></div>
+        <div class="os-row total"><span>Total</span><span id="os-total">$0</span></div>
+        <a href="carrito.html" class="os-back">← Volver al carrito</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ ORDER CONFIRMED OVERLAY ═══ -->
+  <div id="order-confirmed">
+    <div id="confirmed-box">
+      <div class="confirmed-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <span class="confirmed-label">Pedido recibido</span>
+      <h2 class="confirmed-title">¡Muchas gracias!</h2>
+      <p class="confirmed-text">Tu pedido ha sido confirmado. Te enviaremos un correo con los detalles y el seguimiento de tu despacho.</p>
+      <a href="index.html" id="confirmed-close">Volver al inicio</a>
+    </div>
+  </div>
+
+  <!-- ═══ SITE FOOTER ═══ -->
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div id="footer-info">
+        <div class="footer-col" style="justify-content:center;">
+          <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile" style="width:100%;height:auto;display:block;">
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Horarios</p>
+          <p class="footer-text">Lunes a viernes: 9:00 am – 8:30 pm<br>Sábado: 10:00 am – 6:30 pm<br>Domingo: cerrado</p>
+          <p class="footer-text" style="margin-top:10px;"><a href="https://maps.google.com/?q=Nueva+de+Lyon+116+Providencia" target="_blank">Nueva de Lyon 116, local 3, Providencia</a><br>A media cuadra del metro Los Leones</p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Contacto</p>
+          <p class="footer-text"><a href="https://wa.me/56992656723">+56 9 9265 6723</a><br><a href="mailto:contacto@losquesosdechile.cl">contacto@losquesosdechile.cl</a></p>
+        </div>
+      </div>
+      <nav id="footer-nav">
+        <a href="index.html">Inicio</a>
+        <a href="nuestros-quesos.html">Nuestros Quesos</a>
+        <a href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+        <a href="catering.html">Catering</a>
+        <a href="nosotros.html">Nosotros</a>
+      </nav>
+    </div>
+    <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
+  </footer>
+
+  <!-- Cart panel -->
+  <div id="cart-overlay"></div>
+  <div id="cart-panel">
+    <div id="cart-panel-header">
+      <span id="cart-count-label">Tu carrito</span>
+      <button id="cart-close" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div id="cart-panel-body">
+      <div id="cart-items"></div>
+      <div id="cart-recommendations">
+        <p class="cart-rec-title">Completa tu carrito</p>
+        <div id="cart-rec-list"></div>
+      </div>
+    </div>
+    <div id="cart-panel-footer">
+      <div id="cart-subtotal-row">
+        <span id="cart-subtotal-label">Subtotal</span>
+        <span id="cart-subtotal">$0</span>
+      </div>
+      <a href="carrito.html" id="cart-go-btn">Ir a carrito</a>
+    </div>
+  </div>
+
+  <script src="cart.js"></script>
+  <script>
+    // Navbar scroll
+    var nb = document.getElementById('navbar');
+    window.addEventListener('scroll', function() {
+      nb.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // Render order summary sidebar
+    function renderSummary() {
+      var cart = LQDC.getCart();
+      var osItems = document.getElementById('os-items');
+      var osSub   = document.getElementById('os-subtotal');
+      var osTot   = document.getElementById('os-total');
+
+      if (cart.length === 0) {
+        osItems.innerHTML = '<div id="os-empty">Tu carrito está vacío.</div>';
+      } else {
+        osItems.innerHTML = cart.map(function(item) {
+          return '<div class="os-item">'
+            + '<div class="os-item-img-wrap">'
+            + '<img class="os-item-img" src="' + item.img + '" alt="' + item.name + '">'
+            + '<span class="os-item-qty-badge">' + item.qty + '</span>'
+            + '</div>'
+            + '<div class="os-item-info">'
+            + '<div class="os-item-name">' + item.name + '</div>'
+            + '<div class="os-item-price">' + LQDC.fmt(item.price * item.qty) + '</div>'
+            + '</div></div>';
+        }).join('');
+      }
+
+      var total = LQDC.getTotal();
+      if (osSub) osSub.textContent = LQDC.fmt(total);
+      if (osTot) osTot.textContent = LQDC.fmt(total);
+    }
+
+    // Payment method toggle
+    document.querySelectorAll('input[name="payment"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        var cardFields = document.getElementById('card-fields');
+        if (this.value === 'card') {
+          cardFields.classList.add('visible');
+        } else {
+          cardFields.classList.remove('visible');
+        }
+      });
+    });
+
+    // Card number formatting
+    var cardNumInput = document.getElementById('f-card-num');
+    if (cardNumInput) {
+      cardNumInput.addEventListener('input', function() {
+        var v = this.value.replace(/\D/g, '').substring(0, 16);
+        this.value = v.replace(/(.{4})/g, '$1 ').trim();
+      });
+    }
+
+    // Card expiry formatting
+    var cardExpInput = document.getElementById('f-card-exp');
+    if (cardExpInput) {
+      cardExpInput.addEventListener('input', function() {
+        var v = this.value.replace(/\D/g, '').substring(0, 4);
+        if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2);
+        this.value = v;
+      });
+    }
+
+    // Select label lift
+    document.querySelectorAll('.field-wrap.select-wrap select').forEach(function(sel) {
+      sel.addEventListener('change', function() {
+        var wrap = this.closest('.field-wrap');
+        if (this.value) {
+          wrap.classList.add('has-value');
+          this.classList.add('selected');
+        } else {
+          wrap.classList.remove('has-value');
+          this.classList.remove('selected');
+        }
+      });
+    });
+
+    // Form submit
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var confirmed = document.getElementById('order-confirmed');
+      confirmed.classList.add('show');
+      LQDC.saveCart([]);
+    });
+
+    document.getElementById('confirmed-close').addEventListener('click', function() {
+      document.getElementById('order-confirmed').classList.remove('show');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderSummary();
+    });
+  </script>
+</body>
+</html>

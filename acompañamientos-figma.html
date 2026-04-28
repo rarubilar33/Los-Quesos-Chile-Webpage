@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acompañamientos &amp; Cafetería — Figma Flat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root{--yellow:#F2C832;--font-body:'Jost',sans-serif;--font-display:'Cormorant Garamond',serif;--cream:#faf7f2;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--font-body);background:var(--cream);color:#1a0e00;width:1440px;max-width:100%;}
+
+    #navbar{width:100%;background:rgba(26,14,0,0.96);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 40px;height:90px;}
+    .nav-left,.nav-right{display:flex;align-items:center;list-style:none;}
+    .nav-right{justify-content:flex-end;}
+    .nav-item{position:relative;}
+    .nav-link{display:block;padding:20px 18px;font-family:var(--font-body);font-size:11.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#f5f0e8;text-decoration:none;white-space:nowrap;}
+    .nav-item.active .nav-link{color:#fff;}
+    .nav-item.active .nav-link::after{content:'';position:absolute;bottom:14px;left:18px;right:18px;height:1.5px;background:var(--yellow);display:block;}
+    .nav-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .nav-logo-wrap img{height:64px;width:auto;}
+    .nav-logo-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);}
+    .nav-icons{display:flex;align-items:center;gap:6px;margin-left:8px;}
+    .nav-icon-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:transparent;color:#f5f0e8;cursor:pointer;border-radius:50%;}
+    .nav-icon-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+
+    #page-hero{position:relative;width:100%;height:100vh;min-height:600px;overflow:hidden;}
+    #page-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    #page-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.15) 55%,rgba(0,0,0,0.05) 100%);}
+    #page-hero-content{position:absolute;bottom:90px;left:80px;z-index:2;max-width:580px;}
+    #page-hero-content p{font-family:var(--font-display);font-style:italic;font-size:34px;font-weight:400;line-height:1.4;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,0.4);margin-bottom:32px;}
+    .hero-cta{display:inline-block;padding:14px 36px;font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#1a0e00;background:#fff;text-decoration:none;border:1.5px solid #fff;}
+
+    #menu{background:var(--cream);padding:80px 0 100px;}
+    #menu-header{text-align:center;margin-bottom:52px;padding:0 40px;}
+    #menu-header h2{font-family:var(--font-display);font-size:52px;font-weight:400;color:#1a0e00;margin-bottom:12px;}
+    #menu-header h2 em{font-style:italic;color:var(--yellow);}
+    #menu-header p{font-size:14px;color:#7a6a50;max-width:480px;margin:0 auto;}
+    #category-filters{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:56px;padding:0 40px;}
+    .cat-btn{padding:9px 20px;font-family:var(--font-body);font-size:10.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;border:1.5px solid #c8b490;background:transparent;color:#7a6a50;white-space:nowrap;}
+    .cat-btn.active{background:var(--yellow);border-color:var(--yellow);color:#1a0e00;}
+
+    #items-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:36px 28px;padding:0 60px;max-width:1300px;margin:0 auto;}
+    .item-card{background:#fff;display:flex;flex-direction:column;}
+    .item-img-wrap{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;position:relative;}
+    .item-img-wrap.sandwiches{background:linear-gradient(135deg,#b06040,#6a3018);}
+    .item-img-wrap.ensaladas{background:linear-gradient(135deg,#6a8850,#3a5028);}
+    .item-img-wrap.galletas{background:linear-gradient(135deg,#c8b478,#907040);}
+    .item-img-wrap.helados{background:linear-gradient(135deg,#9890c8,#5850a0);}
+    .item-img-wrap.bebidas{background:linear-gradient(135deg,#784860,#401828);}
+    .item-img-wrap.despensa{background:linear-gradient(135deg,#6a8870,#3a5840);}
+    .item-img-wrap img{width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;}
+    .cat-badge{position:absolute;bottom:14px;left:14px;font-family:var(--font-body);font-size:9px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.7);}
+    .item-card-body{padding:18px 22px 22px;}
+    .item-cat{font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#b09060;margin-bottom:5px;font-weight:500;}
+    .item-name{font-family:var(--font-body);font-size:14px;font-weight:500;color:#1a0e00;line-height:1.35;margin-bottom:6px;}
+    .item-desc{font-size:12.5px;color:#7a6a50;line-height:1.6;font-weight:300;margin-bottom:12px;}
+    .item-price{font-family:var(--font-body);font-size:13px;font-weight:600;color:#4a3a20;}
+
+    #site-footer{background:#fff;border-top:1px solid #e8ddd0;padding:70px 80px 50px;}
+    #footer-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:80px;max-width:1400px;margin:0 auto;}
+    #footer-info{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0 60px;flex:1;}
+    .footer-col{display:flex;flex-direction:column;gap:10px;}
+    .footer-divider{background:#e8ddd0;align-self:stretch;}
+    .footer-label{font-size:13.2px;letter-spacing:0.22em;text-transform:uppercase;color:#d4a900;font-weight:600;margin-bottom:6px;}
+    .footer-text{font-size:17.8px;line-height:1.75;color:#7a6a50;font-weight:300;}
+    .footer-text a{color:#d4a900;text-decoration:none;}
+    #footer-nav{display:flex;flex-direction:column;gap:14px;padding-left:60px;border-left:1px solid #e8ddd0;flex-shrink:0;}
+    #footer-nav a{font-family:var(--font-body);font-size:14.5px;letter-spacing:0.14em;text-transform:uppercase;color:#7a6a50;text-decoration:none;font-weight:500;}
+    #footer-bottom{text-align:center;padding-top:40px;margin-top:50px;border-top:1px solid #e8ddd0;font-size:14.5px;letter-spacing:0.08em;color:#b0a090;}
+  </style>
+</head>
+<body>
+
+  <nav id="navbar">
+    <ul class="nav-left">
+      <li class="nav-item"><a class="nav-link" href="#">Club</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Nuestros Quesos</a></li>
+      <li class="nav-item active"><a class="nav-link" href="#">Acompañamientos &amp; Cafetería</a></li>
+    </ul>
+    <div class="nav-logo-wrap">
+      <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile">
+      <span class="nav-logo-dot"></span>
+    </div>
+    <ul class="nav-right">
+      <li class="nav-item"><a class="nav-link" href="#">Regalos</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Catering</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Nosotros</a></li>
+      <li class="nav-item">
+        <div class="nav-icons">
+          <button class="nav-icon-btn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
+          <button class="nav-icon-btn"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+          <button class="nav-icon-btn"><svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <section id="page-hero">
+    <img src="uploads/Cheese table - Acompanamientos y cafeteria.png" alt="Acompañamientos y Cafetería">
+    <div id="page-hero-overlay"></div>
+    <div id="page-hero-content">
+      <p>Tablas, sándwiches y experiencias<br>construidas alrededor del mejor queso.</p>
+      <a class="hero-cta" href="#">Ver el menú ↓</a>
+    </div>
+  </section>
+
+  <section id="menu">
+    <div id="menu-header">
+      <h2><em>Para</em> acompañar</h2>
+      <p>Todo lo que necesitas para armar una experiencia quesera completa, aquí en nuestra cafetería.</p>
+    </div>
+    <div id="category-filters">
+      <button class="cat-btn active">Todos</button>
+      <button class="cat-btn">Sándwiches</button>
+      <button class="cat-btn">Ensaladas</button>
+      <button class="cat-btn">Galletas</button>
+      <button class="cat-btn">Helados</button>
+      <button class="cat-btn">Bebidas</button>
+      <button class="cat-btn">Despensa</button>
+    </div>
+    <div id="items-grid">
+
+      <div class="item-card">
+        <div class="item-img-wrap sandwiches"><div class="cat-badge">Sándwiches</div></div>
+        <div class="item-card-body"><div class="item-cat">Sándwiches</div><div class="item-name">Sándwich Camembert</div><div class="item-desc">Camembert fundido al horno, tomate confitado y rúcula fresca en pan artesanal.</div><div class="item-price">$7.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap sandwiches"><div class="cat-badge">Sándwiches</div></div>
+        <div class="item-card-body"><div class="item-cat">Sándwiches</div><div class="item-name">Sándwich de Maduro con Jamón</div><div class="item-desc">Queso maduro de guarda, jamón ahumado artesanal y mostaza en grano en ciabatta tostada.</div><div class="item-price">$8.000</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap sandwiches"><div class="cat-badge">Sándwiches</div></div>
+        <div class="item-card-body"><div class="item-cat">Sándwiches</div><div class="item-name">Sándwich Caprese</div><div class="item-desc">Mozzarella fresca, tomate heirloom y albahaca en focaccia con reducción de balsámico.</div><div class="item-price">$7.000</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap sandwiches"><div class="cat-badge">Sándwiches</div></div>
+        <div class="item-card-body"><div class="item-cat">Sándwiches</div><div class="item-name">Sándwich Azul y Pera</div><div class="item-desc">Queso azul, pera caramelizada con miel y nueces tostadas en pan de campo.</div><div class="item-price">$7.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap ensaladas"><div class="cat-badge">Ensaladas</div></div>
+        <div class="item-card-body"><div class="item-cat">Ensaladas</div><div class="item-name">Caprese Chilena</div><div class="item-desc">Mozzarella fior di latte, tomate heirloom y albahaca fresca con reducción de balsámico.</div><div class="item-price">$8.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap ensaladas"><div class="cat-badge">Ensaladas</div></div>
+        <div class="item-card-body"><div class="item-cat">Ensaladas</div><div class="item-name">Ensalada con Feta de Oveja</div><div class="item-desc">Feta de oveja patagónica sobre hojas verdes con aceitunas, pepino y vinagreta de limón.</div><div class="item-price">$8.000</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap ensaladas"><div class="cat-badge">Ensaladas</div></div>
+        <div class="item-card-body"><div class="item-cat">Ensaladas</div><div class="item-name">Ensalada de Queso de Cabra</div><div class="item-desc">Queso de cabra grillado sobre rúcula, nueces tostadas, pera y miel de ulmo.</div><div class="item-price">$8.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap galletas"><div class="cat-badge">Galletas</div></div>
+        <div class="item-card-body"><div class="item-cat">Galletas</div><div class="item-name">Galletas de Agua Artesanales</div><div class="item-desc">Horneadas en nuestra cocina con harina sin blanquear. Crujientes y perfectas para cualquier queso.</div><div class="item-price">$3.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap galletas"><div class="cat-badge">Galletas</div></div>
+        <div class="item-card-body"><div class="item-cat">Galletas</div><div class="item-name">Crackers de Centeno y Semillas</div><div class="item-desc">Crackers de harina de centeno con semillas de amapola, chía y sésamo.</div><div class="item-price">$3.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap galletas"><div class="cat-badge">Galletas</div></div>
+        <div class="item-card-body"><div class="item-cat">Galletas</div><div class="item-name">Galletas de Aceite de Oliva</div><div class="item-desc">Finas y aromáticas, elaboradas con aceite de oliva del Valle del Huasco.</div><div class="item-price">$4.000</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap helados"><div class="cat-badge">Helados</div></div>
+        <div class="item-card-body"><div class="item-cat">Helados</div><div class="item-name">Helado de Queso Brie</div><div class="item-desc">Helado artesanal elaborado con queso brie fundido, base de crema fresca y un toque de miel.</div><div class="item-price">$4.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap helados"><div class="cat-badge">Helados</div></div>
+        <div class="item-card-body"><div class="item-cat">Helados</div><div class="item-name">Helado de Cabra y Miel de Ulmo</div><div class="item-desc">Helado artesanal con queso de cabra fresco y miel de ulmo del sur.</div><div class="item-price">$4.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap bebidas"><div class="cat-badge">Bebidas</div></div>
+        <div class="item-card-body"><div class="item-cat">Bebidas</div><div class="item-name">Vino Blanco por Copa</div><div class="item-desc">Selección rotativa de vinos blancos de los mejores valles chilenos.</div><div class="item-price">$4.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap bebidas"><div class="cat-badge">Bebidas</div></div>
+        <div class="item-card-body"><div class="item-cat">Bebidas</div><div class="item-name">Vino Tinto por Copa</div><div class="item-desc">Tintos Gran Reserva seleccionados para acompañar quesos maduros y azules.</div><div class="item-price">$4.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap despensa"><div class="cat-badge">Despensa</div></div>
+        <div class="item-card-body"><div class="item-cat">Despensa</div><div class="item-name">Huevos de Gallinas Araucanas</div><div class="item-desc">Huevos de gallinas Araucanas, raza chilena nativa. Yema más intensa, sabor más profundo.</div><div class="item-price">$12.500</div></div>
+      </div>
+
+      <div class="item-card">
+        <div class="item-img-wrap despensa"><div class="cat-badge">Despensa</div></div>
+        <div class="item-card-body"><div class="item-cat">Despensa</div><div class="item-name">Dulce de Leche 100% de Cabra</div><div class="item-desc">Dulce de leche artesanal elaborado únicamente con leche de cabra.</div><div class="item-price">$8.000</div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div id="footer-info">
+        <div class="footer-col" style="justify-content:center;">
+          <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile" style="width:100%;height:auto;display:block;">
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Horarios</p>
+          <p class="footer-text">Lunes a viernes: 9:00 am – 8:30 pm<br>Sábado: 10:00 am – 6:30 pm<br>Domingo: cerrado</p>
+          <p class="footer-text" style="margin-top:10px;"><a href="#">Nueva de Lyon 116, local 3, Providencia</a><br>A media cuadra del metro Los Leones</p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Contacto</p>
+          <p class="footer-text"><a href="#">+56 9 9265 6723</a><br><a href="#">contacto@losquesosdechile.cl</a></p>
+          <div style="display:flex;gap:16px;margin-top:16px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5.5" stroke="#1a0e00" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" stroke="#1a0e00" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.1" fill="#1a0e00"/></svg>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M17 2h-3a5 5 0 0 0-5 5v3H6v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" stroke="#1a0e00" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+      <nav id="footer-nav">
+        <a href="#">Inicio</a>
+        <a href="#">Nuestros Quesos</a>
+        <a href="#">Acompañamientos &amp; Cafetería</a>
+        <a href="#">Catering</a>
+        <a href="#">Nosotros</a>
+      </nav>
+    </div>
+    <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
+  </footer>
+
+</body>
+</html>

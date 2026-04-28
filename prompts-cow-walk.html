@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll-Stop Prompts — Walking Cow Animation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'Archivo', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --lime: #BFF549;
+      --bg: #02040a;
+      --card-bg: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.06);
+      --text-secondary: #99A1AF;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    ::selection { background:var(--lime); color:#000; }
+    ::-webkit-scrollbar { width:8px; }
+    ::-webkit-scrollbar-track { background:rgba(0,0,0,0.2); border-radius:4px; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--lime); }
+    body {
+      font-family:var(--font-body); background:var(--bg); color:#fff;
+      -webkit-font-smoothing:antialiased; overflow:hidden; height:100vh;
+      display:flex; flex-direction:column;
+    }
+    h1,h2,h3,h4,h5,h6 { font-family:var(--font-display); }
+    .bg-grid {
+      position:fixed; inset:0;
+      background:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),
+                 linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);
+      background-size:80px 80px;
+      mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);
+      -webkit-mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%);
+      pointer-events:none; z-index:0;
+    }
+    .bg-orb-1 {
+      position:fixed; top:-15%; left:-10%; width:700px; height:700px;
+      background:var(--lime); border-radius:50%; filter:blur(280px);
+      opacity:0.06; pointer-events:none; z-index:0;
+      animation:orbFloat 20s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      position:fixed; bottom:-15%; right:-10%; width:500px; height:500px;
+      background:#FACC15; border-radius:50%; filter:blur(220px);
+      opacity:0.05; pointer-events:none; z-index:0;
+      animation:orbFloat 25s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%,100% { transform:translate(0,0); }
+      50% { transform:translate(40px,25px); }
+    }
+    .confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:9999; }
+    .app {
+      position:relative; z-index:1; display:flex; flex-direction:column;
+      height:100vh; max-width:960px; margin:0 auto; padding:2rem 2rem 0; width:100%;
+    }
+    .header { text-align:center; padding:1.5rem 0 1.75rem; flex-shrink:0; }
+    .header-badge {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      padding:0.35rem 0.9rem; margin-bottom:1rem; border-radius:980px;
+      border:1px solid rgba(191,245,73,0.3); background:rgba(191,245,73,0.05);
+      color:var(--lime); font-size:0.65rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:0.2em; backdrop-filter:blur(10px);
+    }
+    .header-badge svg { width:12px; height:12px; }
+    .header h1 {
+      font-size:clamp(1.8rem,5vw,3rem); font-weight:900;
+      letter-spacing:-0.06em; line-height:0.9; margin-bottom:0.75rem;
+    }
+    .header h1 .lime { color:var(--lime); }
+    .header h1 .faded {
+      background:linear-gradient(to right,#fff,rgba(255,255,255,0.4));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .header p { font-size:0.95rem; color:var(--text-secondary); max-width:500px; margin:0 auto; line-height:1.5; font-weight:300; }
+    .tabs-row { display:flex; gap:0.5rem; flex-shrink:0; margin-bottom:1.25rem; }
+    .tab {
+      flex:1; display:flex; align-items:center; justify-content:center; gap:0.6rem;
+      padding:0.85rem 1rem; border-radius:20px; border:1px solid var(--card-border);
+      background:var(--card-bg); color:var(--text-secondary); font-size:0.82rem;
+      font-weight:600; cursor:pointer; transition:all 0.35s cubic-bezier(0.16,1,0.3,1);
+      position:relative; overflow:hidden;
+    }
+    .tab::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.35s ease; border-radius:20px; }
+    .tab[data-tab="A"]::before { background:linear-gradient(135deg,rgba(191,245,73,0.12),transparent); }
+    .tab[data-tab="B"]::before { background:linear-gradient(135deg,rgba(96,165,250,0.12),transparent); }
+    .tab[data-tab="C"]::before { background:linear-gradient(135deg,rgba(250,204,21,0.12),transparent); }
+    .tab:hover { border-color:rgba(255,255,255,0.12); color:#fff; transform:translateY(-1px); }
+    .tab:hover::before { opacity:1; }
+    .tab.active { border-color:rgba(255,255,255,0.15); color:#fff; transform:translateY(-1px); box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+    .tab.active::before { opacity:1; }
+    .tab .tab-letter {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:28px; height:28px; border-radius:10px; font-size:0.75rem;
+      font-weight:900; font-family:var(--font-display); flex-shrink:0; transition:all 0.35s ease;
+    }
+    .tab[data-tab="A"] .tab-letter { background:rgba(191,245,73,0.2); color:var(--lime); }
+    .tab[data-tab="B"] .tab-letter { background:rgba(96,165,250,0.2); color:#60a5fa; }
+    .tab[data-tab="C"] .tab-letter { background:rgba(250,204,21,0.2); color:#FACC15; }
+    .tab.active[data-tab="A"] .tab-letter { background:var(--lime); color:#000; }
+    .tab.active[data-tab="B"] .tab-letter { background:#60a5fa; color:#000; }
+    .tab.active[data-tab="C"] .tab-letter { background:#FACC15; color:#000; }
+    .tab .tab-name { position:relative; z-index:1; }
+    .prompt-panel {
+      flex:1; min-height:0; display:flex; flex-direction:column;
+      background:linear-gradient(145deg,rgba(12,14,22,0.92),rgba(6,8,14,0.95));
+      border:1px solid var(--card-border); border-radius:28px 28px 0 0; overflow:hidden;
+    }
+    .panel-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1.25rem 1.75rem; border-bottom:1px solid var(--card-border); flex-shrink:0;
+    }
+    .panel-header-left { display:flex; align-items:center; gap:0.75rem; }
+    .panel-icon {
+      width:36px; height:36px; border-radius:11px; display:flex;
+      align-items:center; justify-content:center; font-size:0.9rem;
+      font-weight:900; font-family:var(--font-display); flex-shrink:0; transition:all 0.35s ease;
+    }
+    .panel-icon.a { background:var(--lime); color:#000; }
+    .panel-icon.b { background:#60a5fa; color:#000; }
+    .panel-icon.c { background:#FACC15; color:#000; }
+    .panel-meta .panel-label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--text-secondary); font-weight:700; }
+    .panel-meta .panel-title { font-size:1.05rem; font-weight:700; letter-spacing:-0.02em; margin-top:1px; }
+    .panel-header-right { display:flex; align-items:center; gap:0.5rem; }
+    .instruction-tag {
+      display:inline-flex; align-items:center; gap:0.35rem;
+      padding:0.3rem 0.75rem; border-radius:980px; font-size:0.65rem; font-weight:600; white-space:nowrap;
+    }
+    .instruction-tag.img { background:rgba(191,245,73,0.08); color:var(--lime); border:1px solid rgba(191,245,73,0.15); }
+    .instruction-tag.vid { background:rgba(250,204,21,0.08); color:#FACC15; border:1px solid rgba(250,204,21,0.15); }
+    .instruction-tag svg { width:11px; height:11px; }
+    .copy-btn {
+      display:inline-flex; align-items:center; gap:0.45rem; padding:0.55rem 1.15rem;
+      border-radius:980px; border:1px solid var(--card-border); background:transparent;
+      color:var(--text-secondary); font-size:0.78rem; font-weight:600; cursor:pointer;
+      transition:all 0.25s ease; font-family:var(--font-body);
+    }
+    .copy-btn:hover { background:var(--lime); color:#000; border-color:var(--lime); transform:scale(1.03); }
+    .copy-btn.copied { background:var(--lime); color:#000; border-color:var(--lime); }
+    .copy-btn svg { width:14px; height:14px; }
+    .panel-body { flex:1; min-height:0; position:relative; }
+    .prompt-content { display:none; position:absolute; inset:0; opacity:0; transform:translateY(8px); transition:opacity 0.3s ease,transform 0.3s ease; }
+    .prompt-content.active { display:block; opacity:1; transform:translateY(0); }
+    .prompt-text {
+      font-family:var(--font-mono); font-size:0.8rem; line-height:1.8;
+      color:rgba(255,255,255,0.72); white-space:pre-wrap; word-break:break-word;
+      padding:1.75rem; height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    }
+    .prompt-text::-webkit-scrollbar { width:6px; }
+    .prompt-text::-webkit-scrollbar-track { background:transparent; }
+    .prompt-text::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:3px; }
+    @media (max-width:640px) {
+      .app { padding:1.25rem 1rem 0; }
+      .header { padding:1rem 0 1.25rem; }
+      .header h1 { font-size:clamp(1.5rem,8vw,2.2rem); }
+      .tab { padding:0.7rem 0.5rem; border-radius:16px; }
+      .tab .tab-name { display:none; }
+      .tab .tab-letter { width:32px; height:32px; font-size:0.85rem; }
+      .tab .tab-subtitle { display:block; font-size:0.65rem; color:var(--text-secondary); margin-top:2px; }
+      .panel-header { flex-direction:column; align-items:flex-start; gap:0.75rem; padding:1rem 1.25rem; }
+      .panel-header-right { width:100%; justify-content:space-between; }
+      .prompt-text { padding:1.25rem; font-size:0.73rem; }
+      .prompt-panel { border-radius:22px 22px 0 0; }
+    }
+    @media (min-width:641px) { .tab .tab-subtitle { display:none; } }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-orb-1"></div>
+  <div class="bg-orb-2"></div>
+  <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+  <div class="app">
+    <header class="header">
+      <div class="header-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Scroll-Stop Prompter
+      </div>
+      <h1>WALKING <span class="faded">COW</span> <span class="lime">PROMPTS.</span></h1>
+      <p>Click a tab, hit copy, get confetti. Upload the source photo as start frame in your video model.</p>
+    </header>
+
+    <div class="tabs-row">
+      <button class="tab active" data-tab="A" onclick="switchTab('A')">
+        <span class="tab-letter">A</span>
+        <span class="tab-name">Camera Settings</span>
+        <span class="tab-subtitle">Camera</span>
+      </button>
+      <button class="tab" data-tab="B" onclick="switchTab('B')">
+        <span class="tab-letter">B</span>
+        <span class="tab-name">End Frame</span>
+        <span class="tab-subtitle">End</span>
+      </button>
+      <button class="tab" data-tab="C" onclick="switchTab('C')">
+        <span class="tab-letter">C</span>
+        <span class="tab-name">Video Motion</span>
+        <span class="tab-subtitle">Video</span>
+      </button>
+    </div>
+
+    <div class="prompt-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="panel-icon a" id="panelIcon">A</div>
+          <div class="panel-meta">
+            <div class="panel-label" id="panelLabel">Prompt A &mdash; Camera Director Analysis</div>
+            <div class="panel-title" id="panelTitle">Camera Settings</div>
+          </div>
+        </div>
+        <div class="panel-header-right">
+          <div class="instruction-tag img" id="panelTag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span id="panelTagText">Reference &middot; Match these settings</span>
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="copyCurrentPrompt()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="prompt-content active" id="contentA">
+          <div class="prompt-text">PROMPT A — START FRAME (Empty Field)
+[Generate this image in your AI tool · Use as Start Frame in your video model]
+[This is the scene BEFORE the cow enters — an empty golden wheat field]
+
+A wide golden wheat field shot from an ultra-low camera angle at wheat-stalk height
+(~40–50cm off the ground), slight upward tilt. The field is completely empty — no
+cow visible yet. The frame is filled with:
+
+FOREGROUND: Dense golden-amber dry wheat stalks filling the bottom third of frame,
+extremely close to camera lens — bokeh-soft, warm and textured. A few individual
+stalks in sharp focus create a natural organic frame. The stalks show subtle
+movement from a gentle breeze.
+
+MIDGROUND: More wheat stretching back — the density thins slightly in the center,
+creating a natural corridor-like clearing where a large animal could walk through.
+The right edge of frame shows a natural opening in the stalks — almost like a path.
+
+BACKGROUND: A dark mass of blurred trees / hedgerow fills the lower half of the
+background. Above it: a wide blue-grey overcast sky, soft cloud cover, slightly
+lighter toward the center — diffused natural light from above.
+
+The far right edge of the frame has a very subtle warmth/suggestion — as if
+something large is about to enter from that direction.
+
+CAMERA — identical to the source reference photo:
+Canon 5D Mark IV / Sony A7III, 120mm telephoto, f/3.5, 1/800s, ISO 500.
+Ultra-low angle at wheat height, slight upward tilt. Static locked-off shot.
+
+LIGHTING: Overcast natural daylight — giant diffused soft light from above.
+Neutral-warm. Warm amber wheat foreground, cool blue-grey sky background.
+No hard shadows anywhere.
+
+COLOR GRADE: Natural documentary — warm amber wheat, dark green-black treeline,
+cool grey-blue sky. Medium natural contrast. No heavy grade.
+
+Photorealistic, 16:9, 4K ultra-high resolution, no digital artifacts.
+The composition should feel like you are lying in the wheat field, waiting.</div>
+        </div>
+
+        <div class="prompt-content" id="contentB">
+          <div class="prompt-text">PROMPT B — END FRAME
+[Generate this OR use as End Frame in your video model · Reference the source photo for the cow's exact appearance]
+
+The same golden wheat field from Prompt A — same ultra-low camera angle, same
+overcast light, same locked-off composition — but now a Hereford cow (chestnut-brown
+coat, distinctive white blaze marking down the face, tan-cream muzzle) has walked
+fully into frame from the right and is now positioned center-left.
+
+THE COW — matches the source reference photo exactly:
+- Rich chestnut-brown short coat, warm and textured — individual hairs visible
+- Bold white blaze: broad white marking covering the forehead and face
+- Tan-cream muzzle and nostrils, slightly damp
+- Rounded, heavy body — clearly a mature Hereford beef breed
+- Head is lowered naturally, nose level with the top of the wheat stalks
+- One large brown eye visible, calm expression
+- One ear angled forward, slightly alert
+
+POSITION: Cow is center-left of frame, body angled slightly toward camera and left.
+We see the right shoulder, chest, and full head — the cow has just finished walking
+through the wheat. The wheat stalks in front of the cow's chest are pushed aside
+and slightly bent. A few stalks are pressed against the cow's lower legs.
+
+Behind the cow (right side of frame): the wheat stalks are slowly springing back
+upright after the cow passed through, slightly bent in the cow's wake.
+
+BACKGROUND: Identical to Prompt A — blurred dark treeline lower background,
+blue-grey overcast sky above. The cow has moved left so slightly more of the right
+side background is now exposed on the right edge of frame.
+
+CAMERA — identical to source reference:
+Canon 5D Mark IV / Sony A7III, 120mm telephoto, f/3.5, 1/800s, ISO 500.
+Same ultra-low wheat-height angle, same slight upward tilt. Locked off.
+
+LIGHTING: Overcast natural daylight — same even diffused soft light. Warm amber
+wheat foreground, cool grey-blue sky. The cow's brown coat has warm highlights
+from the overcast sky above.
+
+COLOR GRADE: Natural documentary — warm chestnut, golden wheat, cool sky. Same
+medium contrast as the reference photo.
+
+Photorealistic, 16:9, 4K ultra-high resolution, medium-format editorial quality.</div>
+        </div>
+
+        <div class="prompt-content" id="contentC">
+          <div class="prompt-text">PROMPT C — VIDEO MOTION (Primary Deliverable)
+[Paste into Runway Gen-3 / Kling 2.0 / Pika 2.0 / Higgsfield]
+[Upload PROMPT A output as START FRAME]
+[Upload PROMPT B output as END FRAME for maximum control]
+[Or use the original source cow photo as start — cow will exit right and re-enter]
+
+THE CONCEPT: A locked-off camera sits at wheat-stalk height in a golden field.
+The frame is still. From the right edge, a Hereford cow slowly walks into frame,
+crosses left, and continues off the left edge. 5 seconds. Pure cinematic stillness
+interrupted only by this one massive animal moving through.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FRAME-BY-FRAME MOTION SCRIPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+0.0s — Empty wheat field. Complete stillness except a faint breeze moving
+       individual wheat stalks 1–2cm. The right edge of frame shows nothing yet.
+       A very subtle warmth/shadow appears at the far right edge — something large
+       is approaching just off-screen.
+
+0.6s — The cow's nose and white blaze appear from the right edge of frame,
+       low and pushing through the wheat. Just the head visible, entering slowly.
+       The wheat stalks at the right edge part and bend aside.
+
+1.0s — The cow's full head and right shoulder enter frame. The Hereford's large
+       brown eye is visible — calm, unhurried. Head is held at wheat-top level,
+       slightly lowered. First full stride begins. RIGHT FRONT leg steps forward,
+       LEFT REAR leg follows — natural 4-beat bovine diagonal gait starts.
+
+1.6s — The cow is now one-third into the frame from the right. Full head and
+       shoulders visible, body still entering. The cow's massive weight causes
+       its body to sway left 3–4cm with each stride. Head bobs DOWN 2–3cm on
+       each foot-contact (not up — bovine gait drops the head on impact).
+       Wheat stalks at chest height part like a curtain as the cow pushes through.
+
+2.2s — Cow is center-right frame, showing head, full chest, right shoulder.
+       Third stride — the gait is steady, calm, completely unhurried. The cow is
+       not alarmed or hurrying. Tail swings loosely to the right, slightly delayed
+       from the body's lateral sway. A faint breath mist visible at the nostrils
+       in the cool air. The wheat the cow has passed through slowly springs back
+       upright behind it.
+
+3.0s — Cow reaches center frame. Full right side profile briefly visible.
+       The cow's entire body fills the center of the frame — head, shoulder,
+       barrel, hip, partially visible. This is the peak cinematic moment.
+       The foreground wheat stalks blur-frame the cow on both sides.
+
+3.8s — Cow is center-left, head now approaching the left third of frame.
+       The cow's gait remains perfectly consistent — heavy, deliberate, pastoral.
+       The right side of the frame now shows only empty wheat field where the
+       cow entered, stalks slowly recovering upright.
+
+4.5s — The cow's head reaches the left edge of frame. The nose disappears first,
+       then the white blaze, then the shoulder. The cow exits calmly off the left.
+
+5.0s — The cow's rear hip and tail are the last things visible — the tail
+       swings one final time as it exits. Frame returns to the empty wheat field.
+       A beat of stillness. The wheat stalks the cow disturbed slowly settle back.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GAIT PHYSICS — critical for realism
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Bovine 4-beat walk sequence: right front → left rear → left front → right rear
+Body lateral sway: 3–5cm side-to-side with each stride
+Head bob: DOWN 2–3cm on each foot contact (opposite of human gait)
+Tail: loose pendulum swing, slightly delayed from hip movement
+Ear position: relaxed, one slightly forward — calm not alarmed
+Pace: slow and completely deliberate — 1 full body length per 2.5 seconds
+Breathing: visible nostril movement, faint breath mist in cool air
+Coat: individual fur fibres move slightly with the body's motion
+Hooves: barely visible through wheat but each step creates a subtle thud/
+        compression in the wheat stalks underfoot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMERA & TECHNICAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CAMERA: Completely locked off — zero pan, zero tilt, zero zoom, zero shake.
+The camera is on a tripod at 40–50cm height, level with the wheat tops.
+The only motion in the entire frame is the cow walking and the gentle wheat breeze.
+
+LENS BEHAVIOR: 120mm telephoto compression maintained throughout — the background
+trees appear compressed and close. The foreground wheat stalks remain soft bokeh
+throughout. The cow stays in crisp sharp focus as it passes through the focal plane.
+
+LIGHTING: Consistent overcast natural daylight throughout — absolutely no lighting
+changes, no flickering, no exposure shifts between frames.
+
+COLOR GRADE: Natural documentary — warm chestnut-brown coat, golden amber wheat,
+cool blue-grey sky. Medium natural contrast. Same grade as source reference photo.
+No orange-teal, no heavy processing.
+
+ATMOSPHERE: Rural countryside silence. The sound implied by the visuals: soft
+crunch of dry wheat underfoot, the very faint sound of the cow's breathing, a
+gentle breeze through the stalks. Cinematic patience — this shot was worth waiting for.
+
+DURATION: 5 seconds exactly
+ASPECT RATIO: 16:9
+QUALITY: Photorealistic 4K, minimum 24fps, no morphing/warping artifacts on
+cow fur or wheat stalks, maintain sharp focus on cow throughout crossing,
+preserve the foreground bokeh depth separation in every frame.
+
+LOOP VERSION: Empty field → cow enters right → crosses → exits left → pause →
+reverse: cow re-enters from left → crosses right → exits right → pause → repeat.
+Perfect seamless loop for a website hero section background.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
+    let confettiPieces = [], confettiAnimating = false;
+    function resizeConfetti() { confettiCanvas.width=window.innerWidth; confettiCanvas.height=window.innerHeight; }
+    resizeConfetti(); window.addEventListener('resize', resizeConfetti);
+    const confettiColors = ['#BFF549','#FACC15','#60a5fa','#f472b6','#a78bfa','#34d399','#fb923c','#fff'];
+    function launchConfetti() {
+      confettiPieces = [];
+      for (let i=0;i<150;i++) {
+        confettiPieces.push({
+          x:window.innerWidth/2+(Math.random()-0.5)*200, y:window.innerHeight/2,
+          vx:(Math.random()-0.5)*20, vy:-(Math.random()*18+6),
+          w:Math.random()*10+5, h:Math.random()*6+3,
+          color:confettiColors[Math.floor(Math.random()*confettiColors.length)],
+          rotation:Math.random()*360, rotationSpeed:(Math.random()-0.5)*15,
+          gravity:0.35+Math.random()*0.15, opacity:1,
+          decay:0.008+Math.random()*0.008, shape:Math.random()>0.5?'rect':'circle'
+        });
+      }
+      if (!confettiAnimating) { confettiAnimating=true; animateConfetti(); }
+    }
+    function animateConfetti() {
+      confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+      let alive=0;
+      for (const p of confettiPieces) {
+        if (p.opacity<=0) continue; alive++;
+        p.x+=p.vx; p.vy+=p.gravity; p.y+=p.vy; p.vx*=0.99;
+        p.rotation+=p.rotationSpeed; p.opacity-=p.decay;
+        confettiCtx.save();
+        confettiCtx.translate(p.x,p.y);
+        confettiCtx.rotate((p.rotation*Math.PI)/180);
+        confettiCtx.globalAlpha=Math.max(0,p.opacity);
+        confettiCtx.fillStyle=p.color;
+        if (p.shape==='rect') { confettiCtx.fillRect(-p.w/2,-p.h/2,p.w,p.h); }
+        else { confettiCtx.beginPath(); confettiCtx.arc(0,0,p.w/2,0,Math.PI*2); confettiCtx.fill(); }
+        confettiCtx.restore();
+      }
+      if (alive>0) { requestAnimationFrame(animateConfetti); }
+      else { confettiAnimating=false; confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); }
+    }
+    const tabsData = {
+      A: { label:'Prompt A &mdash; Camera Director Analysis', title:'Camera Settings', iconClass:'a', tagClass:'img',
+        tagIcon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+        tagText:'Reference &middot; Match these settings' },
+      B: { label:'Prompt B &mdash; Image Generator', title:'End Frame', iconClass:'b', tagClass:'img',
+        tagIcon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+        tagText:'16:9 &middot; Reference source photo' },
+      C: { label:'Prompt C &mdash; Video Model', title:'Video Motion', iconClass:'c', tagClass:'vid',
+        tagIcon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+        tagText:'Start: source photo &middot; 5 seconds' }
+    };
+    let currentTab = 'A';
+    function switchTab(tab) {
+      if (tab===currentTab) return;
+      currentTab=tab;
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+      const info=tabsData[tab];
+      const icon=document.getElementById('panelIcon');
+      icon.textContent=tab; icon.className='panel-icon '+info.iconClass;
+      document.getElementById('panelLabel').innerHTML=info.label;
+      document.getElementById('panelTitle').textContent=info.title;
+      const tag=document.getElementById('panelTag');
+      tag.className='instruction-tag '+info.tagClass;
+      tag.innerHTML=info.tagIcon+' <span>'+info.tagText+'</span>';
+      const btn=document.getElementById('copyBtn');
+      btn.classList.remove('copied');
+      btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+      document.querySelectorAll('.prompt-content').forEach(c=>c.classList.remove('active'));
+      requestAnimationFrame(()=>{ document.getElementById('content'+tab).classList.add('active'); });
+    }
+    function copyCurrentPrompt() {
+      const content=document.querySelector('.prompt-content.active .prompt-text');
+      const btn=document.getElementById('copyBtn');
+      navigator.clipboard.writeText(content.textContent).then(()=>{
+        launchConfetti();
+        btn.classList.add('copied');
+        btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        setTimeout(()=>{
+          btn.classList.remove('copied');
+          btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+        }, 2000);
+      });
+    }
+    document.addEventListener('keydown',(e)=>{
+      if (e.key==='1') switchTab('A');
+      if (e.key==='2') switchTab('B');
+      if (e.key==='3') switchTab('C');
+      if ((e.metaKey||e.ctrlKey)&&e.key==='c'&&!window.getSelection().toString()) { e.preventDefault(); copyCurrentPrompt(); }
+    });
+  </script>
+</body>
+</html>

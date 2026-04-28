@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Los Quesos de Chile</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --yellow: #F2C832;
+      --yellow-dark: #d4a900;
+      --nav-height: 72px;
+      --nav-height-scrolled: 54px;
+      --text-nav: #f5f0e8;
+      --text-nav-hover: #ffffff;
+      --font-body: 'Jost', sans-serif;
+      --font-display: 'Cormorant Garamond', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: #fff;
+      color: #1a0e00;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVBAR ─── */
+    #nav-top-fade {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 110px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);
+      z-index: 99;
+      pointer-events: none;
+    }
+
+    #navbar {
+      position: fixed;
+      top: 28px; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-height);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 0 40px;
+      transition: height 0.45s cubic-bezier(0.22,1,0.36,1), background 0.45s ease, top 0.45s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    #navbar.scrolled {
+      top: 8px;
+      height: var(--nav-height-scrolled);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0) 100%);
+    }
+
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      list-style: none;
+    }
+    .nav-right { justify-content: flex-end; }
+
+    .nav-item { position: relative; }
+
+    .nav-link {
+      display: block;
+      padding: 26px 18px;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-nav);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.25s ease, padding 0.45s cubic-bezier(0.22,1,0.36,1);
+      position: relative;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    #navbar.scrolled .nav-link {
+      padding-top: 18px;
+      padding-bottom: 18px;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 16px;
+      left: 18px; right: 18px;
+      height: 1.5px;
+      background: var(--yellow);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0s;
+    }
+
+    .nav-item.active > .nav-link::after { transform: scaleX(1); }
+
+    .nav-item:not(.active):hover > .nav-link { color: var(--text-nav-hover); }
+    .nav-item:not(.active):hover > .nav-link::after {
+      transform: scaleX(1);
+      transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .nav-item:not(.active) > .nav-link::after {
+      transition: transform 0.18s ease;
+      transform: scaleX(0);
+    }
+
+    .nav-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .nav-logo-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--yellow);
+      flex-shrink: 0;
+    }
+    .nav-logo-wrap img {
+      height: 72px; width: auto;
+      display: block;
+      transition: opacity 0.2s, height 0.45s cubic-bezier(0.22,1,0.36,1);
+    }
+    #navbar.scrolled .nav-logo-wrap img { height: 52px; }
+    .nav-logo-wrap img:hover { opacity: 0.88; }
+
+    .nav-icons {
+      display: flex; align-items: center;
+      gap: 6px; margin-left: 8px;
+    }
+    .nav-icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border: none; background: transparent;
+      color: var(--text-nav); cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .nav-icon-btn svg {
+      width: 17px; height: 17px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: calc(100% - 2px); left: 0;
+      min-width: 220px;
+      background: rgba(12, 10, 6, 0.97);
+      border-top: 2px solid var(--yellow);
+      padding: 10px 0 14px;
+      opacity: 0; pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      backdrop-filter: blur(16px);
+    }
+    .nav-right .dropdown { left: auto; right: 0; }
+    .nav-item:hover .dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    .dropdown-link {
+      display: block; padding: 10px 24px;
+      font-size: 11px; letter-spacing: 0.13em;
+      font-weight: 500; text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.75);
+      text-decoration: none;
+      transition: color 0.18s, padding-left 0.18s;
+    }
+    .dropdown-link:hover { color: #fff; padding-left: 30px; }
+    .dropdown-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 6px 24px; }
+    .dropdown-sep { border: none; border-top: 1px solid rgba(242,200,50,0.25); margin: 8px 24px; }
+
+    /* ─── HERO ─── */
+    #hero-wrapper {
+      position: relative;
+      height: 185vh;
+    }
+
+    #hero-sticky {
+      position: sticky;
+      top: 0; height: 100vh; width: 100%;
+      overflow: hidden;
+    }
+
+    #hero-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; z-index: 0;
+    }
+
+    #hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.1) 55%,
+        rgba(0,0,0,0.0) 100%
+      );
+      z-index: 1;
+    }
+
+    #hero-dark-overlay {
+      position: absolute; inset: 0;
+      background: #2a1000;
+      opacity: 0; z-index: 2;
+      pointer-events: none;
+    }
+
+    #hero-top-mask {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, transparent 100%);
+      z-index: 5; pointer-events: none;
+    }
+
+    #hero-text-container {
+      position: absolute;
+      bottom: calc(320px + 9vh); left: 80px;
+      z-index: 6; max-width: 860px;
+      will-change: transform;
+    }
+
+    #hero-tagline {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(40px, 4.8vw, 68px);
+      font-weight: 400; line-height: 1.15;
+      color: #fff;
+      text-shadow: 0 2px 40px rgba(0,0,0,0.4);
+      letter-spacing: 0.01em; max-width: 860px;
+      opacity: 0;
+      animation: taglineIn 1.2s 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+
+    #hero-tagline em { font-style: normal; color: var(--yellow); }
+
+    @keyframes taglineIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    #hero-paragraph { margin-top: 32vh; }
+
+    .hero-para-line {
+      display: block;
+      font-family: var(--font-body);
+      font-size: clamp(15px, 1.6vw, 19px);
+      font-weight: 300; letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.90);
+      line-height: 1.6; margin-bottom: 22px;
+    }
+
+    .hero-cta-wrap { margin-top: 32px; }
+    #hero-paragraph .hero-cta-wrap { transform: translateY(-35vh); margin-top: 14px; }
+    #hero-paragraph .hero-para-line:last-child { transform: translateY(-60px); }
+
+    .hero-cta {
+      display: inline-block; padding: 14px 36px;
+      font-family: var(--font-body);
+      font-size: 13.31px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #1a0e00; background: #fff;
+      text-decoration: none; border: 1.5px solid #fff;
+      transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+    }
+    .hero-cta:hover { background: var(--yellow); border-color: var(--yellow); color: #1a0e00; }
+
+
+    #after-hero {
+      position: relative;
+      background: #fff;
+      min-height: 20px; padding-top: 0;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── CHEESE SCROLL ANIMATION ─── */
+    #cheese-scroll-outer {
+      height: 175vh;
+      margin-top: 0;
+      position: relative;
+      z-index: 3;
+      background: #fff;
+    }
+    #cheese-scroll {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: #fff;
+      overflow: hidden;
+    }
+    #cheese-sticky {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+    #cheese-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ─── TESTIMONIAL TITLE ─── */
+    #testimonial-title {
+      position: absolute;
+      left: 5vw; top: 10vh;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 10;
+    }
+    .testimonial-title-label {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .testimonial-title-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 3vw, 46px);
+      font-weight: 500;
+      color: #1a0e00;
+      margin: 0 0 6px;
+    }
+    .testimonial-title-sub {
+      font-family: var(--font-body);
+      font-size: clamp(12px, 1vw, 15px);
+      font-weight: 300;
+      color: #5a3f28;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── TESTIMONIAL AVATARS ─── */
+    #testimonial-avatars { position: absolute; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
+    .t-av { position: absolute; display: flex; flex-direction: column; align-items: center; pointer-events: none; will-change: transform, opacity; }
+    .t-av-circle {
+      width: 58px; height: 58px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-body); font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.35);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease;
+      position: relative; z-index: 1;
+    }
+    .t-av.t-active .t-av-circle {
+      transform: scale(1.45);
+      box-shadow: 0 0 0 3px #d4a900, 0 0 0 8px rgba(212,169,0,0.28), 0 0 50px 20px rgba(212,169,0,0.35);
+    }
+    .t-av-bubble {
+      position: absolute;
+      bottom: calc(100% + 4vh + 14px);
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(250,247,242,0.96);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-radius: 14px; padding: 13px 16px; width: 210px;
+      text-align: left; opacity: 0; pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .t-av.t-active .t-av-bubble { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+    .t-av-bubble-name { font-family: var(--font-body); font-size: 10px; font-weight: 700; color: #d4a900; text-transform: uppercase; letter-spacing: 0.12em; display: block; margin-top: 8px; margin-bottom: 0; text-align: left; }
+    .t-av-bubble-text { font-family: var(--font-display); font-size: 16px; color: #1a0e00; line-height: 1.45; margin: 0; font-style: italic; }
+
+    /* ─── CARLOS REVEAL ─── */
+    #carlos-reveal {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    #reveal-line {
+      position: absolute;
+      left: 50%; top: 0;
+      width: 1.41px; height: 0;
+      background: rgba(26,14,0,0.18);
+      transform: translateX(-50%);
+      transition: height 1s cubic-bezier(0.22,1,0.36,1);
+    }
+    #carlos-reveal.visible #reveal-line { height: 100%; }
+
+    #reveal-text {
+      position: absolute;
+      left: 17.06vw; top: 65%;
+      transform: translateY(-60%);
+      max-width: 38vw;
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path 0.2s ease;
+    }
+    #carlos-reveal.visible #reveal-text {
+      clip-path: inset(0 0% 0 0);
+      transition: clip-path 0.9s cubic-bezier(0.22,1,0.36,1) 0.45s;
+    }
+    #reveal-text .reveal-label {
+      display: block;
+      font-family: var(--font-body);
+      font-style: normal;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--yellow-dark);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    #reveal-text h2 {
+      font-family: var(--font-display);
+      font-size: clamp(30px, 3vw, 50px);
+      font-weight: 500;
+      line-height: 1.12;
+      color: #1a0e00;
+      margin-bottom: 24px;
+    }
+    #reveal-text p {
+      font-family: var(--font-body);
+      font-size: clamp(13px, 1.1vw, 16px);
+      font-weight: 300;
+      line-height: 1.8;
+      color: #3a2a1a;
+      margin-bottom: 18px;
+      max-width: 25.44vw;
+    }
+
+    #reveal-box {
+      position: absolute;
+      width: 25.44vw; height: 69vh;
+      left: 57.5vw; top: 25.5vh;
+    }
+    #reveal-box svg { width: 100%; height: 100%; overflow: visible; }
+    .box-path {
+      fill: none;
+      stroke: rgba(26,14,0,0.18);
+      stroke-width: 1.41;
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+    }
+    #carlos-reveal.visible .box-path {
+      animation: drawBorder 1s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    @keyframes drawBorder { to { stroke-dashoffset: 0; } }
+
+    /* ─── FALLING CHEESES ─── */
+    #falling-cheeses {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      transition: opacity 0.9s ease;
+    }
+    #falling-cheeses.fade-out { opacity: 0; }
+
+    .falling-cheese {
+      position: absolute;
+      top: 0; left: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 36% 30%,
+        #f7e49a 0%, #e8c055 38%, #c49228 70%, #9e7018 100%);
+      box-shadow: inset -3px -4px 10px rgba(0,0,0,0.18),
+                  inset 2px 2px 6px rgba(255,255,230,0.25);
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    .fc-1  { width: 7.0vw; height: 7.0vw; }
+    .fc-2  { width: 3.5vw; height: 3.5vw; }
+    .fc-3  { width: 5.5vw; height: 5.5vw; }
+    .fc-4  { width: 4.0vw; height: 4.0vw; }
+    .fc-5  { width: 6.0vw; height: 6.0vw; }
+    .fc-6  { width: 2.8vw; height: 2.8vw; }
+    .fc-7  { width: 4.5vw; height: 4.5vw; }
+    .fc-8  { width: 3.0vw; height: 3.0vw; }
+    .fc-9  { width: 6.5vw; height: 6.5vw; }
+    .fc-10 { width: 2.5vw; height: 2.5vw; }
+    .fc-11 { width: 5.0vw; height: 5.0vw; }
+    .fc-12  { width: 3.8vw; height: 3.8vw; }
+    .fc-r1  { width: 5.0vw; height: 5.0vw; }
+    .fc-r2  { width: 3.5vw; height: 3.5vw; }
+    .fc-r3  { width: 6.5vw; height: 6.5vw; }
+    .fc-r4  { width: 4.0vw; height: 4.0vw; }
+    .fc-r5  { width: 7.0vw; height: 7.0vw; }
+    .fc-r6  { width: 2.8vw; height: 2.8vw; }
+
+    /* ── TRANSITION CIRCLES ────────────────────────────── */
+    #trans-cheeses {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 100vh;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 10;
+    }
+    .trans-cheese {
+      position: absolute;
+      top: 0; left: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 36% 30%,
+        #f7e49a 0%, #e8c055 38%, #c49228 70%, #9e7018 100%);
+      box-shadow: inset -3px -4px 10px rgba(0,0,0,0.18),
+                  inset 2px 2px 6px rgba(255,255,230,0.25);
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .tc-1 { width: 7.0vw; height: 7.0vw; }
+    .tc-2 { width: 3.5vw; height: 3.5vw; }
+    .tc-3 { width: 5.5vw; height: 5.5vw; }
+    .tc-4 { width: 4.0vw; height: 4.0vw; }
+    .tc-5 { width: 6.0vw; height: 6.0vw; }
+    .tc-6 { width: 2.8vw; height: 2.8vw; }
+    .tc-7 { width: 4.5vw; height: 4.5vw; }
+    .tc-8 { width: 3.0vw; height: 3.0vw; }
+    .tc-r1 { width: 5.0vw; height: 5.0vw; }
+    .tc-r2 { width: 3.5vw; height: 3.5vw; }
+    .tc-r3 { width: 6.5vw; height: 6.5vw; }
+    .tc-r4 { width: 4.0vw; height: 4.0vw; }
+
+    /* ── FEATURED PRODUCTS ─────────────────────────────── */
+    #featured-section {
+      position: relative;
+      z-index: 6;
+      background: #fff;
+      padding: calc(208px - 15vh) 0 72px;
+    }
+    #featured-heading {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    #featured-heading .featured-label {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-top: 2vh;
+      margin-bottom: 4px;
+    }
+    #featured-heading h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 3vw, 46px);
+      font-weight: 500;
+      color: #1a0e00;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    #featured-carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      height: 57vh;
+    }
+    #featured-track {
+      display: flex;
+      gap: 0;
+      will-change: transform;
+      height: 100%;
+      align-items: center;
+    }
+    .f-slide {
+      flex: 0 0 49vw;
+      margin-right: -15vw;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.55s ease, transform 0.55s ease;
+      opacity: 0.38;
+      transform: scale(0.64);
+    }
+    .f-slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .f-slide img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      display: block;
+    }
+    .f-slide--circle img {
+      clip-path: circle(37% at 50% 47%);
+    }
+    .featured-arrow {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: clamp(18px, 1.6vw, 26px);
+      color: rgba(26,14,0,0.45);
+      padding: 0 18px;
+      line-height: 1;
+      transition: color 0.2s;
+      vertical-align: middle;
+    }
+    .featured-arrow:hover { color: #1a0e00; }
+    #featured-info {
+      text-align: center;
+      padding: 25px 0 0;
+    }
+    #featured-meta-wrap {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    #featured-meta-wrap.changing {
+      opacity: 0;
+      transform: translateY(7px);
+    }
+    #featured-cat {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(26,14,0,0.42);
+      margin: 0 0 10px;
+    }
+    #featured-name {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 2.2vw, 34px);
+      font-weight: 500;
+      color: #1a0e00;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+    #featured-price {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(26,14,0,0.5);
+      margin: 0 0 28px;
+    }
+    #featured-ctas {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: -2vh;
+    }
+    .cta-tienda {
+      display: inline-block;
+      padding: 13px 36px;
+      border: 1.5px solid #1a0e00;
+      border-radius: 2px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a0e00;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cta-tienda:hover { background: #1a0e00; color: #fff; }
+    .cta-cart {
+      width: 46px; height: 46px;
+      border: 1.5px solid #1a0e00;
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .cta-cart:hover { background: #1a0e00; }
+    .cta-cart:hover .cart-icon { stroke: #fff; }
+
+    /* ── SHIPPING SECTION ── */
+    #shipping-section {
+      background: #f7f5f2;
+      padding: 104px 4vw 115px;
+      text-align: center;
+    }
+    #shipping-section .section-label {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    #shipping-section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 400;
+      color: #1a0e00;
+      margin-bottom: 74px;
+      line-height: 1.2;
+    }
+    .shipping-grid {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr 1px 1fr;
+      gap: 0 46px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .shipping-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 23px;
+    }
+    .shipping-item:first-child { padding-left: 10%; }
+    .shipping-item:last-child  { padding-right: 10%; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-icon { width: 90px; height: 90px; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-icon svg { width: 39px; height: 39px; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-item-title { font-size: 14.5px; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-item-text { font-size: 17.5px; }
+    .shipping-icon {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: #f5f0e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .shipping-icon svg {
+      width: 34px;
+      height: 34px;
+      stroke: #1a0e00;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .shipping-item-body { display: flex; flex-direction: column; gap: 9px; }
+    .shipping-item-title {
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #1a0e00;
+    }
+    .shipping-item-text {
+      font-family: var(--font-body);
+      font-size: 15.5px;
+      color: #7a6a50;
+      line-height: 1.65;
+    }
+    .shipping-item-text strong {
+      color: #1a0e00;
+      font-weight: 500;
+    }
+    .shipping-item-text a {
+      color: var(--yellow-dark);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .shipping-item-text a:hover { text-decoration: underline; }
+    .shipping-divider {
+      width: 1px;
+      background: #e8e0d0;
+      align-self: stretch;
+      margin: 0 10px;
+    }
+    @media (max-width: 680px) {
+      .shipping-grid { grid-template-columns: 1fr; }
+      .shipping-divider { display: none; }
+    }
+
+    /* ─── SECTION 5 — TESTIMONIOS ─── */
+    #testimonials {
+      background: #fff;
+      padding: 110px 0 100px;
+      overflow: hidden;
+    }
+    #test-header {
+      text-align: center;
+      margin-bottom: 72px;
+      padding: 0 80px;
+    }
+    .test-pill {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    #test-header h2 {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 4vw, 54px);
+      font-weight: 400;
+      color: #1a0e00;
+      line-height: 1.15;
+    }
+    #test-header h2 em { font-style: italic; }
+    #test-stage { position: relative; width: 100%; overflow: hidden; }
+    #test-track {
+      display: flex;
+      gap: 28px;
+      align-items: stretch;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 28px 0;
+    }
+    .test-card {
+      flex-shrink: 0;
+      width: 560px;
+      padding: 26px 52px 24px;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      opacity: 1;
+    }
+    .test-card.active { opacity: 1; }
+    .tc-dark  { background: #1a0e00; color: #faf7f2; }
+    .tc-yellow { background: #f2c832; color: #1a0e00; }
+    .tc-cream { background: #f0e8d8; color: #1a0e00; }
+    .tc-brown { background: #3d1f00; color: #faf7f2; }
+    .tc-sand  { background: #e4d6c0; color: #1a0e00; }
+    .test-stars { font-size: 15px; letter-spacing: 3px; color: #d4a900; }
+    .tc-dark .test-stars, .tc-brown .test-stars { color: #f2c832; }
+    .test-quote {
+      font-family: var(--font-display);
+      font-size: clamp(19px, 1.7vw, 24px);
+      line-height: 1.65;
+      font-weight: 400;
+      flex: 1;
+    }
+    .test-author {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-family: var(--font-body);
+      opacity: 0.6;
+    }
+    #test-heading-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .test-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: clamp(18px, 1.6vw, 26px);
+      color: rgba(26,14,0,0.45);
+      padding: 0 18px;
+      line-height: 1;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .test-btn:hover { color: #1a0e00; }
+    @media (max-width: 900px) {
+      .test-card { width: 80vw; padding: 36px 32px; }
+      #test-header { padding: 0 32px; }
+      #testimonials { padding: 80px 0 80px; }
+    }
+
+    /* ─── CART PANEL ─── */
+    #cart-overlay { position:fixed;inset:0;background:rgba(26,14,0,0.38);z-index:199;opacity:0;pointer-events:none;transition:opacity 0.4s ease; }
+    #cart-overlay.open { opacity:1;pointer-events:auto; }
+    #cart-panel { position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:#faf7f2;z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);box-shadow:-6px 0 48px rgba(26,14,0,0.14); }
+    #cart-panel.open { transform:translateX(0); }
+    #cart-panel-header { display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-count-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00; }
+    #cart-close { background:none;border:none;cursor:pointer;color:#1a0e00;font-size:18px;line-height:1;padding:4px;opacity:0.45;transition:opacity 0.2s; }
+    #cart-close:hover { opacity:1; }
+    #cart-panel-body { flex:1;overflow-y:auto; }
+    #cart-items { padding:8px 28px 0; }
+    .cart-item { display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid #ede5d8; }
+    .cart-item:last-child { border-bottom:none; }
+    .cart-item-img { width:68px;height:68px;object-fit:contain;background:#fff;border-radius:6px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-item-info { flex:1;min-width:0; }
+    .cart-item-name { font-family:var(--font-body);font-size:13.5px;font-weight:400;color:#1a0e00;margin-bottom:3px; }
+    .cart-item-price { font-family:var(--font-body);font-size:13px;color:#7a6a50;font-weight:300;margin-bottom:10px; }
+    .cart-item-qty { display:flex;align-items:center;gap:8px; }
+    .cart-qty-btn { background:none;border:1px solid #c8baa8;width:26px;height:26px;border-radius:2px;cursor:pointer;font-size:15px;color:#1a0e00;display:flex;align-items:center;justify-content:center;transition:background 0.2s,color 0.2s,border-color 0.2s;font-family:var(--font-body); }
+    .cart-qty-btn:hover { background:#1a0e00;color:#faf7f2;border-color:#1a0e00; }
+    .cart-qty-num { font-family:var(--font-body);font-size:14px;font-weight:500;color:#1a0e00;min-width:18px;text-align:center; }
+    .cart-item-remove { background:none;border:none;cursor:pointer;color:#c0b0a0;font-size:14px;padding:2px 4px;transition:color 0.2s;flex-shrink:0; }
+    .cart-item-remove:hover { color:#1a0e00; }
+    #cart-empty-msg { text-align:center;padding:52px 28px;font-family:var(--font-body);color:#b0a090;font-size:14px;font-weight:300; }
+    #cart-recommendations { padding:20px 28px;border-top:1px solid #e8ddd0; }
+    .cart-rec-title { font-family:var(--font-body);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;font-weight:600;color:#d4a900;margin-bottom:14px; }
+    .cart-rec-item { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0e8dc; }
+    .cart-rec-item:last-child { border-bottom:none; }
+    .cart-rec-img { width:50px;height:50px;object-fit:contain;background:#fff;border-radius:4px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-rec-info { flex:1;min-width:0; }
+    .cart-rec-name { font-family:var(--font-body);font-size:12.5px;color:#1a0e00;font-weight:400;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .cart-rec-price { font-family:var(--font-body);font-size:11.5px;color:#7a6a50;font-weight:300; }
+    .cart-rec-add { background:none;border:1.5px solid #1a0e00;color:#1a0e00;padding:6px 14px;font-family:var(--font-body);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;cursor:pointer;border-radius:2px;transition:background 0.2s,color 0.2s;flex-shrink:0; }
+    .cart-rec-add:hover { background:#1a0e00;color:#faf7f2; }
+    #cart-panel-footer { padding:20px 28px 28px;border-top:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-subtotal-row { display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px; }
+    #cart-subtotal-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;color:#7a6a50; }
+    #cart-subtotal { font-family:var(--font-display);font-size:26px;font-weight:400;color:#1a0e00; }
+    #cart-go-btn { display:block;width:100%;text-align:center;padding:16px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;text-decoration:none;transition:background 0.25s; }
+    #cart-go-btn:hover { background:#3d1f00; }
+    .cart-badge { position:absolute;top:-5px;right:-5px;background:#d4a900;color:#1a0e00;font-size:8.5px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:var(--font-body);pointer-events:none; }
+
+    /* ─── CONTACT FORM ─── */
+    #contact-section {
+      background: #faf7f2;
+      padding: 70px 80px;
+      text-align: center;
+    }
+    #contact-inner {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+    #contact-section .section-label-contact {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    #contact-section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 400;
+      color: #1a0e00;
+      line-height: 1.15;
+      margin-bottom: 39px;
+    }
+    .contact-field {
+      position: relative;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+    .contact-field input,
+    .contact-field textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(26,14,0,0.25);
+      padding: 7px 0;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 300;
+      color: #1a0e00;
+      outline: none;
+      transition: border-color 0.3s ease;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .contact-field input:focus,
+    .contact-field textarea:focus {
+      border-bottom-color: #1a0e00;
+    }
+    .contact-field label {
+      position: absolute;
+      top: 7px;
+      left: 0;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(26,14,0,0.5);
+      pointer-events: none;
+      transition: top 0.25s ease, font-size 0.25s ease, color 0.25s ease;
+    }
+    .contact-field input:focus ~ label,
+    .contact-field input:not(:placeholder-shown) ~ label,
+    .contact-field textarea:focus ~ label,
+    .contact-field textarea:not(:placeholder-shown) ~ label {
+      top: -10px;
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+    }
+    .contact-field input::placeholder,
+    .contact-field textarea::placeholder { color: transparent; }
+    .contact-submit {
+      margin-top: 8px;
+      display: inline-block;
+      padding: 10.5px 52px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #faf7f2;
+      background: #1a0e00;
+      border: 1.5px solid #1a0e00;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.35s ease, color 0.35s ease;
+    }
+    .contact-submit:hover { background: transparent; color: #1a0e00; }
+    @media (max-width: 900px) {
+      #contact-section { padding: 56px 32px; }
+    }
+
+    /* ─── SITE FOOTER ─── */
+    #site-footer { background: #fff; border-top: 1px solid #e8ddd0; padding: 70px 80px 50px; }
+    #footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 80px; max-width: 1400px; margin: 0 auto; }
+    #footer-info { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; gap: 0 60px; flex: 1; }
+    .footer-col { display: flex; flex-direction: column; gap: 10px; }
+    .footer-divider { background: #e8ddd0; align-self: stretch; }
+    .footer-label { font-size: 13.2px; letter-spacing: 0.22em; text-transform: uppercase; color: #d4a900; font-weight: 600; margin-bottom: 6px; }
+    .footer-name { font-family: var(--font-display); font-size: clamp(23.8px,2.65vw,34.4px); font-weight: 400; color: #1a0e00; line-height: 1.3; margin-bottom: 6px; }
+    .footer-text { font-size: 17.8px; line-height: 1.75; color: #7a6a50; font-weight: 300; }
+    .footer-text a { color: #d4a900; text-decoration: none; }
+    .footer-text a:hover { text-decoration: underline; }
+    #footer-nav { display: flex; flex-direction: column; gap: 14px; padding-left: 60px; border-left: 1px solid #e8ddd0; flex-shrink: 0; }
+    #footer-nav a { font-family: var(--font-body); font-size: 14.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7a6a50; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    #footer-nav a:hover { color: #1a0e00; }
+    #footer-bottom { text-align: center; padding-top: 40px; margin-top: 50px; border-top: 1px solid #e8ddd0; font-size: 14.5px; letter-spacing: 0.08em; color: #b0a090; }
+    @media (max-width: 900px) {
+      #footer-inner { flex-direction: column; }
+      #footer-info { grid-template-columns: 1fr; gap: 40px; }
+      .footer-divider { display: none; }
+      #footer-nav { border-left: none; padding-left: 0; border-top: 1px solid #e8ddd0; padding-top: 40px; flex-direction: row; flex-wrap: wrap; gap: 12px 20px; }
+      #site-footer { padding: 60px 32px 40px; }
+    }
+
+    /* ─── HERO REVIEW CARD ─── */
+    #hero-review-card {
+      position: fixed;
+      right: 72px;
+      top: calc(150px + 49.5vh);
+      z-index: 90;
+      width: 253px;
+      background: rgba(250, 247, 242, 0.28);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 14px 16px 16px;
+      overflow: hidden;
+      transform: translateX(80px);
+      opacity: 0;
+      transition: transform 0.9s cubic-bezier(0.22,1,0.36,1), opacity 0.9s cubic-bezier(0.22,1,0.36,1);
+      pointer-events: none;
+    }
+    #hero-review-card.hr-visible {
+      transform: translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #hr-badge-label {
+      font-family: var(--font-body);
+      font-size: 8.5px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #d4a900;
+      margin-bottom: 4px;
+    }
+    #hr-subtitle {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 500;
+      color: #1a0e00;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      margin-left: -2%;
+    }
+    #hr-avatars-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      margin: 0 -10px 12px;
+      width: calc(100% + 20px);
+    }
+    .hr-av {
+      aspect-ratio: 1;
+      width: 100%;
+      border-radius: 50%;
+      border: 1.5px solid rgba(250,247,242,0.6);
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hr-av-1 { background: #d4a900; color: #1a0e00; }
+    .hr-av-2 { background: #3d1f00; color: #faf7f2; }
+    .hr-av-3 { background: #e8c055; color: #1a0e00; }
+    .hr-av-4 { background: #7a6a50; color: #faf7f2; }
+    .hr-av-5 { background: #c49228; color: #1a0e00; }
+    .hr-av-6 { background: #5a3010; color: #faf7f2; }
+    #hr-footer { text-align: left; }
+    .hr-stars-row {
+      color: #d4a900;
+      font-size: 14px;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    #hr-count-text {
+      font-family: var(--font-body);
+      font-size: 10px;
+      color: #1a0e00;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+    }
+    @media (max-width: 900px) { #hero-review-card { display: none; } }
+
+    /* ─── HERO BOTTOM WAVE ─── */
+    #hero-wave-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 150;
+      line-height: 0;
+      pointer-events: none;
+      transform: translateY(100%);
+    }
+    #hero-wave-bottom svg { width: 100%; height: 31.15vh; display: block; }
+  </style>
+</head>
+<body>
+
+  <div id="nav-top-fade"></div>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav id="navbar">
+    <ul class="nav-left">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Club</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="nuestros-quesos.html">Nuestros Quesos</a>
+        <div class="dropdown">
+          <a class="dropdown-link" href="nuestros-quesos.html#maduros">Quesos Maduros y de Guarda</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#blanda">Quesos de Pasta Blanda</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#mantecosos">Quesos Mantecosos</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#cabra">Quesos de Cabra</a>
+          <a class="dropdown-link" href="nuestros-quesos.html#azules">Quesos Azules y Especialidades</a>
+          <hr class="dropdown-sep">
+          <a class="dropdown-link" href="procedencia.html">Procedencia</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+        <div class="dropdown">
+          <a class="dropdown-link" href="acompañamientos.html#tablas">Tablas</a>
+          <a class="dropdown-link" href="acompañamientos.html#sandwiches">Sándwiches</a>
+          <a class="dropdown-link" href="acompañamientos.html#ensaladas">Ensaladas</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-link" href="acompañamientos.html#galletas">Galletas Artesanales</a>
+          <a class="dropdown-link" href="acompañamientos.html#helados">Helados</a>
+          <a class="dropdown-link" href="acompañamientos.html#bebidas">Bebidas</a>
+          <a class="dropdown-link" href="acompañamientos.html#despensa">Despensa</a>
+        </div>
+      </li>
+    </ul>
+
+    <div class="nav-logo-wrap">
+      <a href="index.html">
+        <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile">
+      </a>
+      <span class="nav-logo-dot"></span>
+    </div>
+
+    <ul class="nav-right">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Regalos</a>
+        <div class="dropdown">
+          <a class="dropdown-link" href="#">Cajas Regalo</a>
+          <a class="dropdown-link" href="#">Tablas Personalizadas</a>
+          <a class="dropdown-link" href="#">Empresas</a>
+        </div>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="catering.html">Catering</a></li>
+      <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+      <li class="nav-item">
+        <div class="nav-icons">
+          <button class="nav-icon-btn" aria-label="Buscar">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="22" y2="22"></line></svg>
+          </button>
+          <button class="nav-icon-btn" aria-label="Mi cuenta">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </button>
+          <button class="nav-icon-btn" aria-label="Carrito" style="position:relative;">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+            <span class="cart-badge"></span>
+          </button>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <div id="hero-wrapper">
+    <div id="hero-sticky">
+      <video id="hero-video" autoplay muted loop playsinline>
+        <source src="uploads/Opening Video - Full - New Website Los Quesos Chile.mp4" type="video/mp4">
+      </video>
+      <div id="hero-overlay"></div>
+      <div id="hero-top-mask"></div>
+      <div id="hero-text-container">
+        <p id="hero-tagline">
+          Quesos que cuentan historias,<br>
+          sabores que <em>conquistan.</em>
+        </p>
+        <div id="hero-paragraph">
+          <span class="hero-para-line">Recorremos Chile en busca de los mejores productores artesanales.</span>
+          <div class="hero-cta-wrap">
+            <a class="hero-cta" href="nuestros-quesos.html">Conoce los mejores quesos de Chile</a>
+          </div>
+          <span class="hero-para-line">Quesos hechos con tiempo, con cuidado, con sabor real.</span>
+        </div>
+      </div>
+      <div id="hero-dark-overlay"></div>
+      <div id="hero-wave-bottom">
+        <svg viewBox="0 0 1440 380" preserveAspectRatio="none" style="width:100%;display:block;">
+          <path d="M0,380 L0,332 C180,260 270,380 360,380 C580,380 569,188 720,188 C871,188 880,380 1080,380 C1170,380 1260,260 1440,332 L1440,380 Z" fill="#fff"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div id="after-hero"></div>
+
+  <!-- ═══ CHEESE SCROLL ANIMATION ═══ -->
+  <div id="cheese-scroll-outer">
+  <section id="cheese-scroll">
+    <div id="cheese-sticky">
+      <canvas id="cheese-canvas"></canvas>
+      <div id="falling-cheeses">
+        <div class="falling-cheese fc-1"></div>
+        <div class="falling-cheese fc-2"></div>
+        <div class="falling-cheese fc-3"></div>
+        <div class="falling-cheese fc-4"></div>
+        <div class="falling-cheese fc-5"></div>
+        <div class="falling-cheese fc-6"></div>
+        <div class="falling-cheese fc-7"></div>
+        <div class="falling-cheese fc-8"></div>
+        <div class="falling-cheese fc-9"></div>
+        <div class="falling-cheese fc-10"></div>
+        <div class="falling-cheese fc-11"></div>
+        <div class="falling-cheese fc-12"></div>
+        <div class="falling-cheese fc-r1"></div>
+        <div class="falling-cheese fc-r2"></div>
+        <div class="falling-cheese fc-r3"></div>
+        <div class="falling-cheese fc-r4"></div>
+        <div class="falling-cheese fc-r5"></div>
+        <div class="falling-cheese fc-r6"></div>
+      </div>
+      <div id="testimonial-title">
+        <span class="testimonial-title-label">Review</span>
+        <h2 class="testimonial-title-h2">Servicio de excelencia</h2>
+        <p class="testimonial-title-sub">Contado por clientes reales</p>
+      </div>
+      <div id="testimonial-avatars">
+        <div class="t-av" data-idx="0">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"Los mejores quesos que he probado en Chile. El Camembert es increíble."</p><span class="t-av-bubble-name">Carolina M.</span></div>
+          <div class="t-av-circle" style="background:#d4a900;color:#1a0e00;">CM</div>
+        </div>
+        <div class="t-av" data-idx="1">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"Carlos conoce a cada productor. Esa pasión se siente en cada bocado."</p><span class="t-av-bubble-name">Andrés R.</span></div>
+          <div class="t-av-circle" style="background:#3d1f00;color:#faf7f2;">AR</div>
+        </div>
+        <div class="t-av" data-idx="2">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"Envío rápido y empaque perfecto. Mis quesos llegaron en perfectas condiciones."</p><span class="t-av-bubble-name">José P.</span></div>
+          <div class="t-av-circle" style="background:#e8c055;color:#1a0e00;">JP</div>
+        </div>
+        <div class="t-av" data-idx="3">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"Llevo 2 años siendo cliente. La calidad nunca decepciona. ¡100% recomendados!"</p><span class="t-av-bubble-name">Laura V.</span></div>
+          <div class="t-av-circle" style="background:#7a6a50;color:#faf7f2;">LV</div>
+        </div>
+        <div class="t-av" data-idx="4">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"Descubrí quesos chilenos que nunca imaginé que existían. Una revelación."</p><span class="t-av-bubble-name">María R.</span></div>
+          <div class="t-av-circle" style="background:#c49228;color:#1a0e00;">MR</div>
+        </div>
+        <div class="t-av" data-idx="5">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"La caja de degustación fue el regalo perfecto. Mi familia quedó encantada."</p><span class="t-av-bubble-name">Felipe B.</span></div>
+          <div class="t-av-circle" style="background:#5a3010;color:#faf7f2;">FB</div>
+        </div>
+        <div class="t-av" data-idx="6">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"La burrata es simplemente perfecta. Fresca, cremosa, sin igual en Santiago."</p><span class="t-av-bubble-name">Sandra L.</span></div>
+          <div class="t-av-circle" style="background:#8b4513;color:#faf7f2;">SL</div>
+        </div>
+        <div class="t-av" data-idx="7">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"Compré el Gruyère para una fondue y fue un éxito total. Calidad suiza en Chile."</p><span class="t-av-bubble-name">Pedro R.</span></div>
+          <div class="t-av-circle" style="background:#f0d060;color:#1a0e00;">PR</div>
+        </div>
+        <div class="t-av" data-idx="8">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"El packaging es hermoso y el queso llegó en condiciones impecables."</p><span class="t-av-bubble-name">Valentina G.</span></div>
+          <div class="t-av-circle" style="background:#2d1200;color:#faf7f2;">VG</div>
+        </div>
+        <div class="t-av" data-idx="9">
+          <div class="t-av-bubble"><p class="t-av-bubble-text">"Servicio excepcional. Carlos respondió todas mis dudas personalmente."</p><span class="t-av-bubble-name">Roberto M.</span></div>
+          <div class="t-av-circle" style="background:#b8860b;color:#faf7f2;">RM</div>
+        </div>
+      </div>
+
+      <div id="carlos-reveal">
+        <div id="reveal-line"></div>
+        <div id="reveal-text">
+          <span class="reveal-label">Nosotros</span>
+          <h2>Ocho años buscando<br>el queso perfecto.</h2>
+          <p>En 2016, Carlos Peralta se hizo una pregunta simple: ¿por qué era tan difícil encontrar quesos chilenos realmente buenos? Eso lo llevó a recorrer el país de norte a sur, conectando con pequeños productores que trabajan respetando los tiempos de la naturaleza, con materias primas de calidad y procesos tradicionales.</p>
+          <p>Hoy, Los Quesos de Chile reúne una selección de más de 15 productores artesanales — leche de vaca, cabra y oveja — acercando cada queso directamente desde su origen hasta tu mesa.</p>
+          <p>En 2023 abrimos nuestra tienda en Providencia: un espacio para descubrir, probar y elegir con calma. Carlos y Francisca atienden en persona, porque para Carlos la experiencia de comprar un buen queso importa tanto como el queso mismo.</p>
+          <a href="nosotros.html" class="cta-tienda" style="margin-top:24px;pointer-events:auto;">Nosotros</a>
+        </div>
+        <div id="reveal-box">
+          <svg viewBox="0 0 300 800" fill="none" preserveAspectRatio="none">
+            <path class="box-path" vector-effect="non-scaling-stroke" d="M150,790 L285,790 Q300,790 300,775 L300,25 Q300,10 285,10 L150,10"/>
+            <path class="box-path" vector-effect="non-scaling-stroke" d="M150,790 L15,790 Q0,790 0,775 L0,25 Q0,10 15,10 L150,10"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <!-- ── PRODUCTOS DESTACADOS ──────────────────────────── -->
+  <section id="featured-section">
+    <div id="trans-cheeses">
+      <div class="trans-cheese tc-1"></div>
+      <div class="trans-cheese tc-2"></div>
+      <div class="trans-cheese tc-3"></div>
+      <div class="trans-cheese tc-4"></div>
+      <div class="trans-cheese tc-5"></div>
+      <div class="trans-cheese tc-6"></div>
+      <div class="trans-cheese tc-7"></div>
+      <div class="trans-cheese tc-8"></div>
+      <div class="trans-cheese tc-r1"></div>
+      <div class="trans-cheese tc-r2"></div>
+      <div class="trans-cheese tc-r3"></div>
+      <div class="trans-cheese tc-r4"></div>
+    </div>
+    <div id="featured-heading">
+      <span class="featured-label">Selección</span>
+      <h2>
+        <button class="featured-arrow" id="featured-prev">&lt;</button>Nuestros productos<button class="featured-arrow" id="featured-next-btn">&gt;</button>
+      </h2>
+    </div>
+    <div id="featured-carousel">
+      <div id="featured-track">
+        <div class="f-slide active">
+          <img src="uploads/products/cahuelche.png" alt="Camembert Cahuelche">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/burrata.png" alt="Burrata Fior di Latte">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/gruyere.png" alt="Queso Gruyere">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/edam-merken.png" alt="Edam Merkén">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/komuy.png" alt="Queso Mantecoso Komuy">
+        </div>
+        <div class="f-slide f-slide--circle">
+          <img src="uploads/products/Queso Mantecoso Ahumado Natural.png" alt="Mantecoso Ahumado Natural">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/huevos-araucanas.png" alt="Huevos de Gallinas Araucanas">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/mantequilla-campo.png" alt="Mantequilla de Campo">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/dulce-leche-cabra.png" alt="Dulce de Leche de Cabra">
+        </div>
+      </div>
+    </div>
+    <div id="featured-info">
+      <div id="featured-meta-wrap">
+        <p id="featured-cat">Pasta Blanda · Leche de Vaca</p>
+        <h3 id="featured-name">Camembert Cahuelche</h3>
+        <p id="featured-price">$7.800</p>
+      </div>
+      <div id="featured-ctas">
+        <a href="nuestros-quesos.html" class="cta-tienda">Ir a tienda</a>
+        <button class="cta-cart" aria-label="Agregar al carro">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+            <path class="cart-icon" d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke="#1a0e00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="20.5" r="1.2" fill="#1a0e00" class="cart-icon" style="stroke:none"/>
+            <circle cx="19.5" cy="20.5" r="1.2" fill="#1a0e00" class="cart-icon" style="stroke:none"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SECTION 4 — DESPACHO ═══ -->
+  <section id="shipping-section">
+    <p class="section-label">Despacho &amp; Retiro</p>
+    <h2>Te lo llevamos donde estés</h2>
+    <div class="shipping-grid">
+
+      <!-- Free delivery -->
+      <div class="shipping-item">
+        <div class="shipping-icon">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div class="shipping-item-body">
+          <div class="shipping-item-title">Despacho Gratis</div>
+          <div class="shipping-item-text">
+            En compras sobre <strong>$35.000</strong> a Ñuñoa, Providencia, Las Condes, La Reina y Vitacura.<br>
+            Resto de Santiago <strong>$6.500</strong> en compras sobre <strong>$30.000</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="shipping-divider"></div>
+
+      <!-- Pickup -->
+      <div class="shipping-item">
+        <div class="shipping-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="shipping-item-body">
+          <div class="shipping-item-title">Retira en Tienda</div>
+          <div class="shipping-item-text">
+            <a href="https://maps.google.com/?q=Nueva+de+Lyon+116+Providencia" target="_blank">Nueva de Lyon 116, Providencia</a><br>
+            Metro Los Leones
+          </div>
+        </div>
+      </div>
+
+      <div class="shipping-divider"></div>
+
+      <!-- Regions -->
+      <div class="shipping-item">
+        <div class="shipping-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="shipping-item-body">
+          <div class="shipping-item-title">Regiones</div>
+          <div class="shipping-item-text">
+            Los pedidos de regiones van <strong>por pagar vía courier</strong>.<br>
+            Compra mínima <strong>$30.000</strong>.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ SECTION 5 — TESTIMONIOS ═══ -->
+  <section id="testimonials">
+    <div id="test-header">
+      <span class="test-pill">Testimonios</span>
+      <div id="test-heading-row">
+        <button class="test-btn" id="test-prev" aria-label="Anterior">&lt;</button>
+        <h2>Lo que dicen<br><em>nuestros clientes</em></h2>
+        <button class="test-btn" id="test-next" aria-label="Siguiente">&gt;</button>
+      </div>
+    </div>
+    <div id="test-stage">
+      <div id="test-track">
+
+        <div class="test-card tc-dark active">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Nice variety in cow, goat and sheep crafted cheeses from the south and north of Chile. Morbier, raclette, brie, tomme & etc.</p>
+          <p class="test-author">Andres Chile</p>
+        </div>
+
+        <div class="test-card tc-yellow">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Buen lugar, además te puedes servir sandwich con quesos de muy buena calidad y demas productos. Tiene una terraza exterior con mesitas donde servirse. Venden muchos productos naturales como variedad de quesos como de oveja y de cabra, y hasta venden huevos de campo.</p>
+          <p class="test-author">Jose Vergara</p>
+        </div>
+
+        <div class="test-card tc-cream">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Gran variedad de quesos y charcutería de nuestro país. Muy buena presentación y exquisitos productos.</p>
+          <p class="test-author">Fabian Avilés Donoso</p>
+        </div>
+
+        <div class="test-card tc-brown">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Increíble experiencia con Carlos ! Muy lindo ver el potencial Que hay en Chile respecto a los quesos. Además compramos 2 quesos increíbles. Pudimos degustar. Buenísimo ! Muy recomendado</p>
+          <p class="test-author">Patricio Lopetegui Moreno</p>
+        </div>
+
+        <div class="test-card tc-sand">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Estou no Chile fazem 5 dias, e apenas HOJE conheci este estabelecimento, uma pena, queria ter tomado um café lá todos os dias. Comida deliciosa, ambiente agradável, o responsável uma pessoa extremamente agradável com um atendimento nota 11. Indico a todos que são amantes de queijos 🧀.</p>
+          <p class="test-author">Talita Barroso</p>
+        </div>
+
+        <div class="test-card tc-dark">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Atendido por su dueño, Carlos. Hay una extensa variedad de quesos de todos los lugares de Chile. Si eres un amante de los sabores nuevos, los quesos y de la comida, este es tu lugar.</p>
+          <p class="test-author">Valeria Scarleth Castro</p>
+        </div>
+
+        <div class="test-card tc-yellow">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Me encantó!!!, la atención es excelente, con alegría y se nota que les apasiona el tema de los quesos. Excelente servicio 👏🤌🔥 ...</p>
+          <p class="test-author">Alexandra Aguayo Aguilar</p>
+        </div>
+
+        <div class="test-card tc-cream">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Muy amable su dueño, siempre atento cuando uno pasa. Muy buenos productos. Soy intolerante a la lactosa y sufrí por no poder comer queso, pero me orientó y he vuelto a disfrutar de ellos con gusto. Mencion aparte a los huevos, muy buenos y frescos. Aparte son buena onda con mis perros, mejor lugar del barrio 💙</p>
+          <p class="test-author">Karina Guadalupe</p>
+        </div>
+
+        <div class="test-card tc-brown">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Atendido por su propio dueño Carlos Peralta con sus quesos de todo Chile 🇨🇱 lo mejor de lo mejor. El recorre todo Chile trayendo los mejores quesos. Visítenlos 5★ un súper servicio ...</p>
+          <p class="test-author">viajando_c_claudio</p>
+        </div>
+
+        <div class="test-card tc-sand">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Tremendo lugar! Una variedad de quesos nacionales exquisitos. Lo que más me gustó fue la calidad de sus productos ¿cómo se nota una buena leche en un buen queso! En lo personal, me reencontré con el queso Brie, que solía odiar. Tan así, que llevé uno a casa. Se nota la pasión y dedicación.</p>
+          <p class="test-author">Danielaacs1</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ─── Testimonials auto-scroll (slow infinite loop) ──────────────
+    (function() {
+      const track     = document.getElementById('test-track');
+      const origCards = Array.from(track.querySelectorAll('.test-card'));
+      const GAP       = 28;
+      const SPEED     = 0.45; // px per frame (~27px/s at 60fps)
+
+      // Duplicate cards for seamless loop
+      origCards.forEach(function(c) { track.appendChild(c.cloneNode(true)); });
+
+      track.style.transition = 'none';
+
+      let offset = 0;
+      let paused = false;
+      let raf;
+
+      function setWidth() {
+        const cardW = origCards[0].offsetWidth + GAP;
+        return origCards.length * cardW;
+      }
+
+      function tick() {
+        if (!paused) {
+          offset += SPEED;
+          if (offset >= setWidth()) offset -= setWidth();
+          track.style.transform = 'translateX(' + (-offset) + 'px)';
+        }
+        raf = requestAnimationFrame(tick);
+      }
+
+      track.addEventListener('mouseenter', function() { paused = true; });
+      track.addEventListener('mouseleave', function() { paused = false; });
+
+      document.getElementById('test-prev').addEventListener('click', function() {
+        offset = Math.max(0, offset - (origCards[0].offsetWidth + GAP));
+      });
+      document.getElementById('test-next').addEventListener('click', function() {
+        offset += origCards[0].offsetWidth + GAP;
+        if (offset >= setWidth()) offset -= setWidth();
+      });
+
+      raf = requestAnimationFrame(tick);
+    })();
+    // ────────────────────────────────────────────────────────────────
+
+    const navbar = document.getElementById('navbar');
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 30) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+
+      const wrapper = document.getElementById('hero-wrapper');
+      if (!wrapper) return;
+      const wrapperHeight = wrapper.offsetHeight - window.innerHeight;
+      const progress = Math.max(0, Math.min(1, window.scrollY / wrapperHeight));
+
+      const container = document.getElementById('hero-text-container');
+      if (container) {
+        const initialOffset = window.innerHeight * 0.82;
+        const totalTravel = initialOffset - window.innerHeight * 0.05;
+        const translateY = initialOffset - progress * totalTravel;
+        container.style.transform = `translateY(${translateY}px)`;
+      }
+
+      const darkOverlay = document.getElementById('hero-dark-overlay');
+      if (darkOverlay) {
+        const overlayProgress = Math.max(0, Math.min(1, (progress - 0.38) / 0.62));
+        darkOverlay.style.opacity = overlayProgress * 0.66;
+      }
+
+      const waveBottom = document.getElementById('hero-wave-bottom');
+      if (waveBottom) {
+        const waveP = Math.max(0, Math.min(1, (progress - 0.70) / 0.30));
+        waveBottom.style.transform = 'translateY(' + (1 - waveP) * 100 + '%)';
+      }
+
+      const reviewCard = document.getElementById('hero-review-card');
+      if (reviewCard) {
+        const heroStart = wrapperHeight * 0.20;
+        const heroExit  = wrapperHeight * 0.98;
+        if (window.scrollY >= heroStart && window.scrollY <= heroExit) {
+          reviewCard.classList.add('hr-visible');
+        } else {
+          reviewCard.classList.remove('hr-visible');
+        }
+      }
+    }, { passive: true });
+
+    window.addEventListener('load', () => {
+      const container = document.getElementById('hero-text-container');
+      if (container) {
+        const initialOffset = window.innerHeight * 0.82;
+        container.style.transform = `translateY(${initialOffset}px)`;
+      }
+    });
+
+    const navLinks = document.querySelectorAll('.nav-item');
+    navLinks.forEach(item => {
+      const link = item.querySelector('.nav-link');
+      if (!link) return;
+      link.addEventListener('click', () => {
+        if (item.querySelector('.nav-icons')) return;
+        navLinks.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // ─── CHEESE SCROLL ANIMATION ───
+    (function () {
+      const frameCount = 120;
+      const canvas = document.getElementById('cheese-canvas');
+      const ctx = canvas.getContext('2d');
+      const section = document.getElementById('cheese-scroll-outer');
+      const frames = new Array(frameCount);
+      let currentIndex = 0;
+      let rafPending = false;
+      let firstFrame = null;
+
+      // Frame 1:   cheese at ~28% X, ~13% Y, viewport target 22% from top
+      // Frame 120: cheese at ~51% X, ~64% Y, viewport target 58% from top
+      function pad(n) { return String(n).padStart(4, '0'); }
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      function draw(img, progress) {
+        const p = progress || 0;
+        const cheeseX = 0.28 + (0.51 - 0.28) * p;
+        const cheeseY = 0.13 + (0.64 - 0.13) * p;
+        const targetY = 0.315 + (0.415 - 0.315) * p;
+        const targetX = 0.50 + (0.65 - 0.50) * p;
+        const scale   = 1.75 + (1.45 - 1.75) * p;
+        const drawH = scale * canvas.height;
+        const drawW = img.naturalWidth * (drawH / img.naturalHeight);
+        const dx = canvas.width * targetX - cheeseX * drawW;
+        const dy = targetY * canvas.height - cheeseY * drawH;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, dx, dy, drawW, drawH);
+      }
+
+      let currentProgress = 0;
+
+      resizeCanvas();
+      window.addEventListener('resize', function () {
+        resizeCanvas();
+        if (firstFrame) draw(frames[currentIndex] || firstFrame, currentProgress);
+      });
+
+      for (let i = 0; i < frameCount; i++) {
+        const img = new Image();
+        img.src = 'Animations/Animation Cheese/frame_' + pad(i + 1) + (i === 0 ? '.png' : '.jpg');
+        img.onload = (function (idx, el) {
+          return function () {
+            frames[idx] = el;
+            if (!firstFrame) { firstFrame = el; draw(el); }
+          };
+        })(i, img);
+      }
+
+      window.addEventListener('scroll', function () {
+        if (rafPending) return;
+        rafPending = true;
+        requestAnimationFrame(function () {
+          rafPending = false;
+          const sectionTop = section.offsetTop - window.innerHeight * 0.70;
+          const animScrollable = window.innerHeight * 1.05;
+          const scrolled = window.scrollY - sectionTop;
+          const progress = Math.max(0, Math.min(1, scrolled / animScrollable));
+          const exitProgress = Math.max(0, Math.min(1, (scrolled - animScrollable) / window.innerHeight));
+          const idx = Math.min(frameCount - 1, Math.floor(progress * frameCount));
+          if (frames[idx]) {
+            currentIndex = idx;
+            currentProgress = progress;
+            draw(frames[idx], progress);
+          }
+          const reveal = document.getElementById('carlos-reveal');
+          if (progress >= 0.98) reveal.classList.add('visible');
+          else reveal.classList.remove('visible');
+
+          const lineEl = document.getElementById('reveal-line');
+          lineEl.style.transform = exitProgress > 0
+            ? 'translateX(-50%) translateY(' + (exitProgress * 100) + 'vh)'
+            : '';
+
+          // falling cheeses — scroll-driven, fade out before reveal
+          const fcEls = document.querySelectorAll('.fc-1,.fc-2,.fc-3,.fc-4,.fc-5,.fc-6,.fc-7,.fc-8,.fc-9,.fc-10,.fc-11,.fc-12');
+          // 3 lanes so cheeses never overlap:
+          // lane 1 peak ~10vw, lane 2 peak ~25vw, lane 3 peak ~38vw
+          const fcConfigs = [
+            { xBase: -2, amp: 12, phase:  0/12 }, // lane 1
+            { xBase: -3, amp: 28, phase:  1/12 }, // lane 2
+            { xBase: -2, amp: 40, phase:  2/12 }, // lane 3
+            { xBase: -3, amp: 11, phase:  3/12 }, // lane 1
+            { xBase: -4, amp: 27, phase:  4/12 }, // lane 2
+            { xBase: -3, amp: 39, phase:  5/12 }, // lane 3
+            { xBase: -1, amp: 13, phase:  6/12 }, // lane 1
+            { xBase: -2, amp: 29, phase:  7/12 }, // lane 2
+            { xBase: -1, amp: 41, phase:  8/12 }, // lane 3
+            { xBase: -2, amp: 12, phase:  9/12 }, // lane 1
+            { xBase: -3, amp: 28, phase: 10/12 }, // lane 2
+            { xBase: -2, amp: 40, phase: 11/12 }, // lane 3
+          ];
+          // start 20% later than main animation
+          const fcProgress = Math.max(0, (progress - 0.20) / 0.80);
+          const maxOp = progress < 0.20 ? 0 :
+                        progress >= 0.65 ? Math.max(0, (0.80 - progress) / 0.15) * 0.096 : 0.096;
+          fcEls.forEach(function(el, i) {
+            const cfg = fcConfigs[i];
+            const t = ((fcProgress * 1.8) + cfg.phase) % 1;
+            const x = cfg.xBase + cfg.amp * Math.sin(t * Math.PI);
+            const y = -12 + 122 * t;
+            const fade = t < 0.576 ? t / 0.576 : t > 0.92 ? (1 - t) / 0.08 : 1;
+            el.style.transform = 'translate(' + x + 'vw,' + y + 'vh)';
+            el.style.opacity = (fade * maxOp).toFixed(3);
+          });
+
+          // right-side cheeses — mirror of left, disappear 30% earlier
+          const fcRightEls = document.querySelectorAll('.fc-r1,.fc-r2,.fc-r3,.fc-r4,.fc-r5,.fc-r6');
+          const fcRightConfigs = [
+            { xBase: 95, amp: 10, phase: 0/6 },
+            { xBase: 95, amp: 24, phase: 1/6 },
+            { xBase: 95, amp: 25, phase: 2/6 },
+            { xBase: 95, amp:  9, phase: 3/6 },
+            { xBase: 95, amp: 23, phase: 4/6 },
+            { xBase: 95, amp: 25, phase: 5/6 },
+          ];
+          const maxOpRight = progress < 0.20 ? 0 :
+                             progress >= 0.35 ? Math.max(0, (0.65 - progress) / 0.30) * 0.128 : 0.128;
+          fcRightEls.forEach(function(el, i) {
+            const cfg = fcRightConfigs[i];
+            const t = ((fcProgress * 1.8) + cfg.phase) % 1;
+            const x = cfg.xBase - cfg.amp * Math.sin(t * Math.PI);
+            const y = -12 + 122 * t;
+            const fade = t < 0.15 ? t / 0.15 : t > 0.92 ? (1 - t) / 0.08 : 1;
+            el.style.transform = 'translate(' + x + 'vw,' + y + 'vh)';
+            el.style.opacity = (fade * maxOpRight).toFixed(3);
+          });
+          // testimonial avatars — scroll-driven float-up
+          const tAvConfigs = [
+            { x: 7,  yTarget: 50, start: 0.03 },
+            { x: 18, yTarget: 78, start: 0.08 },
+            { x: 30, yTarget: 30, start: 0.12 },
+            { x: 43, yTarget: 52, start: 0.06 },
+            { x: 83, yTarget: 37, start: 0.11 },
+            { x: 83, yTarget: 66, start: 0.05 },
+            { x: 15, yTarget: 43, start: 0.09 },
+            { x: 37, yTarget: 80, start: 0.04 },
+            { x: 72, yTarget: 22, start: 0.13 },
+            { x: 93, yTarget: 50, start: 0.07 },
+          ];
+          const titleEl = document.getElementById('testimonial-title');
+          if (titleEl) {
+            const titleP = Math.max(0, Math.min(1, (progress - 0.01) / 0.18));
+            const titleFadeOut = progress > 0.82 ? Math.max(0, 1 - (progress - 0.82) / 0.18) : 1;
+            titleEl.style.opacity = titleP * titleFadeOut;
+          }
+          document.querySelectorAll('.t-av').forEach(function(el, i) {
+            const cfg = tAvConfigs[i];
+            const localP = Math.max(0, Math.min(1, (progress - cfg.start) / 0.18));
+            const fadeOut = progress > 0.82 ? Math.max(0, 1 - (progress - 0.82) / 0.18) : 1;
+            const opacity = localP * fadeOut;
+            const entryShift = (1 - localP) * 22;
+            const drift = localP >= 1 ? Math.max(0, progress - cfg.start - 0.18) * 12 : 0;
+            el.style.opacity = opacity;
+            el.style.left = cfg.x + 'vw';
+            el.style.top = (cfg.yTarget + entryShift - drift) + 'vh';
+            el.style.pointerEvents = opacity > 0.15 ? 'auto' : 'none';
+          });
+        });
+      }, { passive: true });
+
+      // testimonial avatar click
+      document.querySelectorAll('.t-av-circle').forEach(function(circle) {
+        circle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const av = circle.closest('.t-av');
+          const wasActive = av.classList.contains('t-active');
+          document.querySelectorAll('.t-av').forEach(function(a) { a.classList.remove('t-active'); });
+          if (!wasActive) av.classList.add('t-active');
+        });
+      });
+      document.addEventListener('click', function() {
+        document.querySelectorAll('.t-av').forEach(function(a) { a.classList.remove('t-active'); });
+      });
+    })();
+
+    // ── FEATURED PRODUCTS CAROUSEL ──────────────────────
+    (function () {
+      const products = [
+        { name: 'Camembert Cahuelche',      cat: 'Pasta Blanda · Leche de Vaca',       price: '$7.800',  img: 'uploads/products/cahuelche.jpg' },
+        { name: 'Burrata Fior di Latte',    cat: 'Pasta Blanda · Leche de Vaca',       price: '$7.000',  img: 'uploads/products/burrata.jpg' },
+        { name: 'Queso Gruyere',            cat: 'Maduros y de Guarda · Leche de Vaca',price: '$8.500',  img: 'uploads/products/gruyere.jpg' },
+        { name: 'Edam Merkén',              cat: 'Maduros y de Guarda · Leche de Vaca',price: '$6.000',  img: 'uploads/products/edam-merken.jpg' },
+        { name: 'Mantecoso Komuy',          cat: 'Mantecosos · Leche de Vaca',         price: '$14.500', img: 'uploads/products/komuy.jpg' },
+        { name: 'Mantecoso Ahumado Natural',    cat: 'Mantecosos · Leche de Vaca',  price: '$9.000',  img: 'uploads/products/ahumado.jpg' },
+        { name: 'Huevos de Gallinas Araucanas', cat: 'Despensa',                    price: '$12.500', img: 'uploads/products/huevos-araucanas.png' },
+        { name: 'Mantequilla de Campo 125 grs.',cat: 'Despensa',                    price: '$2.500',  img: 'uploads/products/mantequilla-campo.png' },
+        { name: 'Dulce de Leche 100% de Cabra', cat: 'Despensa',                    price: '$8.000',  img: 'uploads/products/dulce-leche-cabra.png' },
+      ];
+      const n        = products.length;
+      const track    = document.getElementById('featured-track');
+      const nameEl   = document.getElementById('featured-name');
+      const catEl    = document.getElementById('featured-cat');
+      const priceEl  = document.getElementById('featured-price');
+      const metaWrap = document.getElementById('featured-meta-wrap');
+
+      // Clone last slide before first, first slide after last for infinite loop
+      const slides = Array.from(track.children);
+      track.insertBefore(slides[n - 1].cloneNode(true), slides[0]);
+      track.appendChild(slides[0].cloneNode(true));
+      // track now: [clone-last, 0, 1, 2, 3, 4, clone-first]
+
+      let current = 1; // real slide 0 is at index 1
+
+      function getOffset(idx) {
+        const slideW = track.children[0].offsetWidth;
+        const slotW  = track.children.length > 1
+          ? track.children[1].offsetLeft - track.children[0].offsetLeft
+          : slideW;
+        return window.innerWidth / 2 - slideW / 2 - idx * slotW;
+      }
+
+      function updateTrack(animated) {
+        track.style.transition = animated
+          ? 'transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94)'
+          : 'none';
+        track.style.transform = 'translateX(' + getOffset(current) + 'px)';
+        Array.from(track.children).forEach(function (el, i) {
+          el.classList.toggle('active', i === current);
+        });
+      }
+
+      function realIdx() { return current - 1; }
+
+      function updateInfo() {
+        metaWrap.classList.add('changing');
+        setTimeout(function () {
+          const p = products[((realIdx()) + n) % n];
+          nameEl.textContent  = p.name;
+          catEl.textContent   = p.cat;
+          priceEl.textContent = p.price;
+          metaWrap.classList.remove('changing');
+        }, 200);
+      }
+
+      // After transition: if at a clone, silently jump to real slide
+      track.addEventListener('transitionend', function () {
+        if (current === 0) {
+          current = n;
+          updateTrack(false);
+        } else if (current === n + 1) {
+          current = 1;
+          updateTrack(false);
+        }
+      });
+
+      function goTo(idx) {
+        current = idx;
+        updateTrack(true);
+        updateInfo();
+      }
+
+      document.getElementById('featured-prev').addEventListener('click', function () { goTo(current - 1); });
+      document.getElementById('featured-next-btn').addEventListener('click', function () { goTo(current + 1); });
+
+      document.getElementById('featured-carousel').addEventListener('click', function (e) {
+        const x = e.clientX;
+        if (x < window.innerWidth * 0.28) goTo(current - 1);
+        else if (x > window.innerWidth * 0.72) goTo(current + 1);
+      });
+
+      updateTrack(false);
+      setTimeout(function () { track.style.transition = ''; }, 50);
+      window.addEventListener('resize', function () { updateTrack(false); });
+    })();
+
+    // ── TRANSITION CIRCLES (between s2 and s3) ───────────
+    (function () {
+      const featSection  = document.getElementById('featured-section');
+      const tcEls        = document.querySelectorAll('.tc-1,.tc-2,.tc-3,.tc-4,.tc-5,.tc-6,.tc-7,.tc-8');
+      const tcRightEls   = document.querySelectorAll('.tc-r1,.tc-r2,.tc-r3,.tc-r4');
+      const tcConfigs = [
+        { xBase: -2, amp: 12, phase: 0/8 },
+        { xBase: -3, amp: 28, phase: 1/8 },
+        { xBase: -2, amp: 40, phase: 2/8 },
+        { xBase: -3, amp: 11, phase: 3/8 },
+        { xBase: -4, amp: 27, phase: 4/8 },
+        { xBase: -3, amp: 39, phase: 5/8 },
+        { xBase: -1, amp: 13, phase: 6/8 },
+        { xBase: -2, amp: 29, phase: 7/8 },
+      ];
+      const tcRightConfigs = [
+        { xBase: 95, amp: 10, phase: 0/4 },
+        { xBase: 95, amp: 24, phase: 1/4 },
+        { xBase: 95, amp:  9, phase: 2/4 },
+        { xBase: 95, amp: 23, phase: 3/4 },
+      ];
+
+      window.addEventListener('scroll', function () {
+        const fsTop   = featSection.offsetTop;
+        const scrolled = window.scrollY - (fsTop - window.innerHeight * 1.25);
+        const transP  = Math.max(0, Math.min(1, scrolled / window.innerHeight));
+
+        const maxOp      = transP < 0.1 ? transP / 0.1 * 0.098 :
+                           transP > 0.75 ? Math.max(0, (1 - transP) / 0.25) * 0.098 : 0.098;
+        const maxOpRight = transP < 0.1 ? transP / 0.1 * 0.098 :
+                           transP > 0.75 ? Math.max(0, (1 - transP) / 0.25) * 0.098 : 0.098;
+
+        tcEls.forEach(function (el, i) {
+          const cfg = tcConfigs[i];
+          const t   = ((transP * 1.8) + cfg.phase) % 1;
+          const x   = cfg.xBase + cfg.amp * Math.sin(t * Math.PI);
+          const y   = -27 + 97.6 * t;
+          const fade = t < 0.576 ? t / 0.576 : t > 0.92 ? (1 - t) / 0.08 : 1;
+          el.style.transform = 'translate(' + x + 'vw,' + y + 'vh)';
+          el.style.opacity   = (fade * maxOp).toFixed(3);
+        });
+
+        tcRightEls.forEach(function (el, i) {
+          const cfg = tcRightConfigs[i];
+          const t   = ((transP * 1.8) + cfg.phase) % 1;
+          const x   = cfg.xBase - cfg.amp * Math.sin(t * Math.PI);
+          const y   = -27 + 97.6 * t;
+          const fade = t < 0.15 ? t / 0.15 : t > 0.92 ? (1 - t) / 0.08 : 1;
+          el.style.transform = 'translate(' + x + 'vw,' + y + 'vh)';
+          el.style.opacity   = (fade * maxOpRight).toFixed(3);
+        });
+      }, { passive: true });
+    })();
+
+  </script>
+
+  <!-- ═══ FORMULARIO DE CONTACTO ═══ -->
+  <section id="contact-section">
+    <div id="contact-inner">
+      <span class="section-label-contact">Contacto</span>
+      <h2>Escríbenos</h2>
+      <form action="#" method="post">
+        <div class="contact-field">
+          <input type="text" id="cf-nombre" name="nombre" placeholder="Nombre" required>
+          <label for="cf-nombre">Nombre <span style="color:var(--yellow-dark);">*</span></label>
+        </div>
+        <div class="contact-field">
+          <input type="email" id="cf-email" name="email" placeholder="Email" required>
+          <label for="cf-email">Email <span style="color:var(--yellow-dark);">*</span></label>
+        </div>
+        <div class="contact-field">
+          <input type="tel" id="cf-telefono" name="telefono" placeholder="Teléfono">
+          <label for="cf-telefono">Teléfono</label>
+        </div>
+        <div class="contact-field">
+          <input type="text" id="cf-asunto" name="asunto" placeholder="Asunto">
+          <label for="cf-asunto">Asunto</label>
+        </div>
+        <button type="submit" class="contact-submit">Enviar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══ SITE FOOTER ═══ -->
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div id="footer-info">
+        <div class="footer-col" style="justify-content:center;">
+          <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile" style="width:100%;height:auto;display:block;">
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Horarios</p>
+          <p class="footer-text">Lunes a viernes: 9:00 am – 8:30 pm<br>Sábado: 10:00 am – 6:30 pm<br>Domingo: cerrado</p>
+          <p class="footer-text" style="margin-top:10px;"><a href="https://maps.google.com/?q=Nueva+de+Lyon+116+Providencia" target="_blank">Nueva de Lyon 116, local 3, Providencia</a><br>A media cuadra del metro Los Leones</p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Contacto</p>
+          <p class="footer-text"><a href="https://wa.me/56992656723">+56 9 9265 6723</a><br><a href="mailto:contacto@losquesosdechile.cl">contacto@losquesosdechile.cl</a></p>
+          <div style="display:flex;gap:16px;margin-top:16px;">
+            <a href="https://www.instagram.com/losquesosdechile" target="_blank" aria-label="Instagram" style="display:inline-flex;opacity:0.75;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5.5" stroke="#1a0e00" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" stroke="#1a0e00" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.1" fill="#1a0e00"/></svg>
+            </a>
+            <a href="https://www.facebook.com/losquesosdechile" target="_blank" aria-label="Facebook" style="display:inline-flex;opacity:0.75;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 2h-3a5 5 0 0 0-5 5v3H6v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" stroke="#1a0e00" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <nav id="footer-nav">
+        <a href="index.html">Inicio</a>
+        <a href="nuestros-quesos.html">Nuestros Quesos</a>
+        <a href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+        <a href="catering.html">Catering</a>
+        <a href="nosotros.html">Nosotros</a>
+        <a href="#">Contacto</a>
+      </nav>
+    </div>
+    <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
+  </footer>
+
+  <!-- ── REVIEW CARD (fixed) ── -->
+  <div id="hero-review-card">
+    <div id="hr-badge-label">Review</div>
+    <div id="hr-subtitle">#1 Quesería en Chile</div>
+    <div id="hr-avatars-row">
+      <div class="hr-av hr-av-1">CM</div>
+      <div class="hr-av hr-av-2">AR</div>
+      <div class="hr-av hr-av-3">JP</div>
+      <div class="hr-av hr-av-4">LV</div>
+      <div class="hr-av hr-av-5">MR</div>
+      <div class="hr-av hr-av-6">FB</div>
+    </div>
+    <div id="hr-footer">
+      <div class="hr-stars-row">★★★★★</div>
+      <div id="hr-count-text">82 reseñas · 5.0</div>
+    </div>
+  </div>
+
+  <!-- ══ CART PANEL ══ -->
+  <div id="cart-overlay"></div>
+  <div id="cart-panel">
+    <div id="cart-panel-header">
+      <span id="cart-count-label">Tu carrito</span>
+      <button id="cart-close" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div id="cart-panel-body">
+      <div id="cart-items"></div>
+      <div id="cart-recommendations">
+        <p class="cart-rec-title">Completa tu carrito</p>
+        <div id="cart-rec-list"></div>
+      </div>
+    </div>
+    <div id="cart-panel-footer">
+      <div id="cart-subtotal-row">
+        <span id="cart-subtotal-label">Subtotal</span>
+        <span id="cart-subtotal">$0</span>
+      </div>
+      <a href="carrito.html" id="cart-go-btn">Ir a carrito</a>
+    </div>
+  </div>
+  <script src="cart.js"></script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll-Stop Prompts — Chilean Cheese Table</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-body: 'Archivo', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --lime: #BFF549;
+      --bg: #02040a;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.06);
+      --text-secondary: #99A1AF;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    ::selection { background-color: var(--lime); color: #000; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--lime); }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-orb-1 {
+      position: fixed; top: -15%; left: -10%; width: 700px; height: 700px;
+      background: var(--lime); border-radius: 50%; filter: blur(280px);
+      opacity: 0.06; pointer-events: none; z-index: 0;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+
+    .bg-orb-2 {
+      position: fixed; bottom: -15%; right: -10%; width: 500px; height: 500px;
+      background: #FACC15; border-radius: 50%; filter: blur(220px);
+      opacity: 0.05; pointer-events: none; z-index: 0;
+      animation: orbFloat 25s ease-in-out infinite reverse;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(40px, 25px); }
+    }
+
+    .confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+    .app {
+      position: relative; z-index: 1; display: flex; flex-direction: column;
+      height: 100vh; max-width: 960px; margin: 0 auto; padding: 2rem 2rem 0; width: 100%;
+    }
+
+    .header { text-align: center; padding: 1.5rem 0 1.75rem; flex-shrink: 0; }
+
+    .header-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.35rem 0.9rem; margin-bottom: 1rem; border-radius: 980px;
+      border: 1px solid rgba(191, 245, 73, 0.3); background: rgba(191, 245, 73, 0.05);
+      color: var(--lime); font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.2em; backdrop-filter: blur(10px);
+    }
+    .header-badge svg { width: 12px; height: 12px; }
+
+    .header h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900;
+      letter-spacing: -0.06em; line-height: 0.9; margin-bottom: 0.75rem;
+    }
+    .header h1 .lime { color: var(--lime); }
+    .header h1 .faded {
+      background: linear-gradient(to right, #fff, rgba(255,255,255,0.4));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .header p {
+      font-size: 0.95rem; color: var(--text-secondary); max-width: 500px;
+      margin: 0 auto; line-height: 1.5; font-weight: 300;
+    }
+
+    .tabs-row { display: flex; gap: 0.5rem; flex-shrink: 0; margin-bottom: 1.25rem; }
+
+    .tab {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      padding: 0.85rem 1rem; border-radius: 20px; border: 1px solid var(--card-border);
+      background: var(--card-bg); color: var(--text-secondary); font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative; overflow: hidden;
+    }
+    .tab::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.35s ease; border-radius: 20px; }
+    .tab[data-tab="A"]::before { background: linear-gradient(135deg, rgba(191,245,73,0.12), transparent); }
+    .tab[data-tab="B"]::before { background: linear-gradient(135deg, rgba(96,165,250,0.12), transparent); }
+    .tab[data-tab="C"]::before { background: linear-gradient(135deg, rgba(250,204,21,0.12), transparent); }
+    .tab:hover { border-color: rgba(255,255,255,0.12); color: #fff; transform: translateY(-1px); }
+    .tab:hover::before { opacity: 1; }
+    .tab.active { border-color: rgba(255,255,255,0.15); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .tab.active::before { opacity: 1; }
+
+    .tab .tab-letter {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 10px; font-size: 0.75rem;
+      font-weight: 900; font-family: var(--font-display); flex-shrink: 0; transition: all 0.35s ease;
+    }
+    .tab[data-tab="A"] .tab-letter { background: rgba(191,245,73,0.2); color: var(--lime); }
+    .tab[data-tab="B"] .tab-letter { background: rgba(96,165,250,0.2); color: #60a5fa; }
+    .tab[data-tab="C"] .tab-letter { background: rgba(250,204,21,0.2); color: #FACC15; }
+    .tab.active[data-tab="A"] .tab-letter { background: var(--lime); color: #000; }
+    .tab.active[data-tab="B"] .tab-letter { background: #60a5fa; color: #000; }
+    .tab.active[data-tab="C"] .tab-letter { background: #FACC15; color: #000; }
+    .tab .tab-name { position: relative; z-index: 1; }
+
+    .prompt-panel {
+      flex: 1; min-height: 0; display: flex; flex-direction: column;
+      background: linear-gradient(145deg, rgba(12,14,22,0.92), rgba(6,8,14,0.95));
+      border: 1px solid var(--card-border); border-radius: 28px 28px 0 0; overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--card-border); flex-shrink: 0;
+    }
+    .panel-header-left { display: flex; align-items: center; gap: 0.75rem; }
+
+    .panel-icon {
+      width: 36px; height: 36px; border-radius: 11px; display: flex;
+      align-items: center; justify-content: center; font-size: 0.9rem;
+      font-weight: 900; font-family: var(--font-display); flex-shrink: 0; transition: all 0.35s ease;
+    }
+    .panel-icon.a { background: var(--lime); color: #000; }
+    .panel-icon.b { background: #60a5fa; color: #000; }
+    .panel-icon.c { background: #FACC15; color: #000; }
+
+    .panel-meta .panel-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-secondary); font-weight: 700; }
+    .panel-meta .panel-title { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 1px; }
+    .panel-header-right { display: flex; align-items: center; gap: 0.5rem; }
+
+    .instruction-tag {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.3rem 0.75rem; border-radius: 980px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;
+    }
+    .instruction-tag.img { background: rgba(191,245,73,0.08); color: var(--lime); border: 1px solid rgba(191,245,73,0.15); }
+    .instruction-tag.vid { background: rgba(250,204,21,0.08); color: #FACC15; border: 1px solid rgba(250,204,21,0.15); }
+    .instruction-tag svg { width: 11px; height: 11px; }
+
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.55rem 1.15rem;
+      border-radius: 980px; border: 1px solid var(--card-border); background: transparent;
+      color: var(--text-secondary); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: all 0.25s ease; font-family: var(--font-body);
+    }
+    .copy-btn:hover { background: var(--lime); color: #000; border-color: var(--lime); transform: scale(1.03); }
+    .copy-btn.copied { background: var(--lime); color: #000; border-color: var(--lime); }
+    .copy-btn svg { width: 14px; height: 14px; }
+
+    .panel-body { flex: 1; min-height: 0; position: relative; }
+    .prompt-content { display: none; position: absolute; inset: 0; opacity: 0; transform: translateY(8px); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .prompt-content.active { display: block; opacity: 1; transform: translateY(0); }
+
+    .prompt-text {
+      font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.8;
+      color: rgba(255,255,255,0.72); white-space: pre-wrap; word-break: break-word;
+      padding: 1.75rem; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .prompt-text::-webkit-scrollbar { width: 6px; }
+    .prompt-text::-webkit-scrollbar-track { background: transparent; }
+    .prompt-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+    @media (max-width: 640px) {
+      .app { padding: 1.25rem 1rem 0; }
+      .header { padding: 1rem 0 1.25rem; }
+      .header h1 { font-size: clamp(1.5rem, 8vw, 2.2rem); }
+      .header p { font-size: 0.85rem; }
+      .tab { padding: 0.7rem 0.5rem; font-size: 0.72rem; border-radius: 16px; }
+      .tab .tab-name { display: none; }
+      .tab .tab-letter { width: 32px; height: 32px; font-size: 0.85rem; }
+      .tab .tab-subtitle { display: block; font-size: 0.65rem; color: var(--text-secondary); margin-top: 2px; }
+      .panel-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1rem 1.25rem; }
+      .panel-header-right { width: 100%; justify-content: space-between; }
+      .prompt-text { padding: 1.25rem; font-size: 0.73rem; line-height: 1.7; }
+      .prompt-panel { border-radius: 22px 22px 0 0; }
+      .instruction-tag { font-size: 0.6rem; }
+    }
+    @media (min-width: 641px) { .tab .tab-subtitle { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-orb-1"></div>
+  <div class="bg-orb-2"></div>
+  <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+  <div class="app">
+    <header class="header">
+      <div class="header-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Scroll-Stop Prompter
+      </div>
+      <h1>TABLA DE <span class="faded">QUESOS CHILENOS</span> <span class="lime">PROMPTS.</span></h1>
+      <p>Click a tab, hit copy, get confetti. Three prompts for scroll-stopping content.</p>
+    </header>
+
+    <div class="tabs-row">
+      <button class="tab active" data-tab="A" onclick="switchTab('A')">
+        <span class="tab-letter">A</span>
+        <span class="tab-name">Empty Table</span>
+        <span class="tab-subtitle">Empty</span>
+      </button>
+      <button class="tab" data-tab="B" onclick="switchTab('B')">
+        <span class="tab-letter">B</span>
+        <span class="tab-name">Loaded Table</span>
+        <span class="tab-subtitle">Loaded</span>
+      </button>
+      <button class="tab" data-tab="C" onclick="switchTab('C')">
+        <span class="tab-letter">C</span>
+        <span class="tab-name">Video Transition</span>
+        <span class="tab-subtitle">Video</span>
+      </button>
+    </div>
+
+    <div class="prompt-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <div class="panel-icon a" id="panelIcon">A</div>
+          <div class="panel-meta">
+            <div class="panel-label" id="panelLabel">Prompt A &mdash; Image Generator</div>
+            <div class="panel-title" id="panelTitle">Empty Table</div>
+          </div>
+        </div>
+        <div class="panel-header-right">
+          <div class="instruction-tag img" id="panelTag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span id="panelTagText">16:9 &middot; Image Generator</span>
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="copyCurrentPrompt()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-body">
+        <div class="prompt-content active" id="contentA">
+          <div class="prompt-text">PROMPT A — EMPTY TABLE (Before State)
+[Paste into your image generator · Set aspect ratio to 16:9]
+
+Professional food photography of a pristine empty rustic farmhouse dining table, centered in frame, shot from a slightly elevated 3/4 front angle. The table is a wide, heavy solid oak construction with X-cross trestle legs — natural wood grain clearly visible across the entire tabletop surface, warm honey-amber tones with subtle dark knots and long grain lines running end-to-end. The surface is clean, bare, and magnificently textured — every fiber, pore, and grain streak visible.
+
+Pure white background (#FFFFFF), seamlessly extending to infinity in all directions beneath and behind the table. Soft, enveloping studio lighting — a large 5x4 softbox positioned above and slightly forward, two large white V-flat bounce cards on both sides. The light rakes subtly and directionally across the wood surface to accentuate its texture. Clean soft shadows beneath the table legs, no harsh edges.
+
+The table dimensions feel generous and wide — proportioned to hold a grand cheese grazing spread. The wood has a natural matte oil finish — no high-gloss varnish — giving it an authentic artisanal warmth. The X-cross trestle legs show the same wood grain and slight weathering. Nothing whatsoever sits on the table surface — completely bare, clean, waiting.
+
+Photorealistic, hyper-detailed 16:9 composition. The table is the only subject. Shot on Phase One IQ4 150MP, 85mm lens, f/8, ISO 100, studio strobe with large softbox above and two white reflectors flanking. Ultra-sharp detail across the entire wood surface. 8K resolution downsampled to 4K. No text, no props, no food, no decoration — just the bare magnificent table on pure white.</div>
+        </div>
+        <div class="prompt-content" id="contentB">
+          <div class="prompt-text">PROMPT B — LOADED CHEESE TABLE (After State)
+[Paste into your image generator · Set to 16:9 · Reference Prompt A output for same table/angle]
+
+Professional food editorial photography of the same rustic farmhouse oak dining table with X-cross trestle legs, now abundantly loaded with an artisanal Chilean cheese grazing board. Shot from the exact same slightly elevated 3/4 front angle as the empty table. Pure white background (#FFFFFF) extending to infinity.
+
+THE CHEESES — arranged with artful, overflowing abundance:
+
+- Back-left: A massive whole wheel of Queso Mantecoso Chileno (creamy golden Chilean butter cheese) sitting on a round wood board, golden-yellow natural rind, one generous wedge cut and pulled away from the wheel revealing the smooth ivory-yellow interior paste. Moist, buttery sheen on the cut face.
+
+- Back-center: A tall, rustic whole wheel of aged Queso de Cabra (Chilean goat cheese) with a natural grey-ash and white mold rind — rough, dusty, artisanal texture — elevated on a round wooden pedestal board. Beside it, a smaller goat cheese log with a thin white bloomy rind, cross-sections showing bright white paste.
+
+- Center-front on dark slate board: A dramatic wedge of Queso Azul Chileno (Chilean blue cheese) — ivory-cream paste with explosive blue-green Penicillium veining visible on every cut face. Crumbly edges, moist interior. A cheese knife with a dark wood handle rests beside it.
+
+- Left-center: Two rounds of Camembert Quiman (Chilean Camembert) — soft white downy bloomy rind, one round whole, one partially sliced open revealing a runny liquid golden center oozing slightly onto the board.
+
+- Right side on a rectangular wood board: Blocks of Edam cheese — one natural Edam (smooth pale yellow wax exterior), one Edam rubbed with Merken (Chilean smoked chili giving it a deep terracotta-red spiced coating, powder visible on the surface). Both have clean rectangular cuts showing the semi-firm yellow interior.
+
+- Upper-right area: A substantial wedge of Gruyere-style cheese, deep golden-amber color, visible irregular holes (eyes) in the paste, slightly crystalline at the rind edge.
+
+- Slate board upper-right: Thin hand-sliced fan of Parmesano Grana Padano-style, pale straw-yellow, granular crystalline texture visible, arranged in an overlapping fan.
+
+THE ACCOMPANIMENTS — filling every gap naturally:
+
+- Two lush clusters of grapes: deep burgundy-red grapes upper-left spilling over the edge of a small white marble board, bright chartreuse-green grapes upper-right on a dark slate riser
+- A small glass jar of golden artisanal honey with a wooden honey dipper, a thick golden drip running down the side of the jar
+- 4-5 fresh purple figs: two halved showing brilliant ruby-red flesh and seeds, others whole, scattered naturally near center
+- Whole walnuts and broken walnut halves scattered casually throughout, filling gaps
+- A rustic sourdough country loaf on the far left on a round wood board — sliced, showing an open crumb structure, warm golden crust
+- Thin artisan water crackers fanned out in a small white ceramic bowl, some crackers leaning against cheese
+- Small white ceramic bowl of plump green Azapa olives (from northern Chile) glistening with olive oil, with a small fork
+- A small dark jar of deep crimson fig jam with the lid off, a tiny wooden spoon resting on top
+- Fresh rosemary sprigs tucked between cheeses at multiple points, bright green
+- Scattered dried apricots, deep orange, near center
+- A small pinch bowl of Merken (dark smoked chili spice) adding color
+- Wooden-handled cheese knives and small forks placed casually, naturally
+
+PRESENTATION STYLE: The table surface is completely covered — a true overflowing grazing abundance. Cheeses sit at varied heights: some elevated on wood boards and slate risers in the back, lower items in front creating depth. The arrangement is organic and natural — artful but not symmetrical, like a professional food stylist composed it for an editorial shoot. Items overlap slightly at edges.
+
+Same studio lighting as the empty table: large softbox above, white bounce cards on sides. Warm directional light catches the honey jar glass, highlights the grape skins, rakes across cheese textures — the mold bloom on Camembert rind, the blue veining in Azul, crystalline granules on aged Parmesano, waxy sheen of Edam. Every texture is razor-sharp.
+
+Shot on Phase One IQ4 150MP, 85mm lens, f/8, ISO 100. 8K quality. Hyper-realistic food editorial photography. No text, no labels, no branding visible anywhere.</div>
+        </div>
+        <div class="prompt-content" id="contentC">
+          <div class="prompt-text">PROMPT C — VIDEO TRANSITION
+[Paste into your video model · Upload Prompt A output as Start Frame · Upload Prompt B output as End Frame]
+
+START FRAME: A pristine, completely empty rustic farmhouse oak dining table with X-cross trestle legs, centered in frame on a pure white background (#FFFFFF). Warm honey-amber wood grain surface, perfectly bare, shot from slightly elevated 3/4 front angle. Soft enveloping studio lighting from above.
+
+END FRAME: The same table completely overflowing with a lavish Chilean artisan cheese grazing board — whole Mantecoso wheel with cut wedge, aged goat cheese wheel on pedestal, dramatic blue cheese wedge on slate, oozing Camembert rounds, natural and Merken-rubbed Edam blocks, Gruyere wedge, fanned Parmesano slices, burgundy and green grape clusters, honey jar with dripping honey, halved fresh figs, scattered walnuts, sourdough bread, crackers, Azapa olives, fig jam jar, rosemary sprigs, cheese knives — every surface covered edge to edge in abundant artisanal abundance.
+
+TRANSITION — The Filling Animation:
+
+The empty table holds perfectly still for 0.8 seconds. Then every single cheese and accompaniment flies in from off-screen and drops onto the table in a dramatic, building cascade — each item with distinct personality and physics:
+
+0.8s — The massive Mantecoso wheel swoops in from upper-left with authority, landing with a satisfying heavy thud, the cut wedge already in position beside it
+1.1s — The goat cheese wheel on its pedestal drops from directly above, spinning lazily as it descends, landing solid
+1.3s — The blue cheese wedge slides powerfully in from the left on its slate board, a tiny puff of white mold dust on landing
+1.5s — The dark slate board arrives from below-left, sliding into position
+1.7s — Both Camembert rounds roll in from the right, one wobbling slightly before settling
+1.9s — The Edam blocks drop in from upper-right in quick succession — the Merken-rubbed one releasing a micro-puff of dark red spice powder on impact
+2.1s — The wood board with sourdough bread slides in dramatically from the far left
+2.3s — The burgundy grape cluster drops from above-left, individual grapes bouncing and scattering 2-3cm before settling back into a perfect cluster
+2.5s — Green grape cluster swings in from upper-right on its slate riser, landing with a slight sway
+2.7s — The honey jar floats in gently from above-center, landing soft, honey visibly sloshing inside the glass
+2.9s — Gruyere wedge slides in from right, Parmesano fan drops from above-right fanning out on landing
+3.1s — Figs tumble in from both upper corners simultaneously, the halved ones landing cut-face-up
+3.3s — Walnuts scatter in from multiple directions at once, rolling and nestling naturally into gaps
+3.5s — Crackers in their bowl arrive from the left, the olives bowl slides in from the right
+3.7s — Jam jar drops with a small ceramic clink wobble, cheese knives spin lazily through air and clatter down
+3.9s — Rosemary sprigs flutter down last from above like feathers, drifting and settling softly into the final gaps
+4.2s — Everything is in place. The complete loaded table holds for 1.8 seconds.
+
+PHYSICS &amp; MOTION STYLE: Each item has realistic weight and momentum — heavy cheese wheels land with authority, light sprigs drift, grapes bounce. Natural settling micro-movements after each landing. Satisfying ASMR-quality impact sounds implied by the motion. Smooth motion blur on fast-moving items, sharp on still items. No teleporting or pop-ins — every item travels a visible path.
+
+CAMERA: Completely locked off — zero camera movement, zero zoom. The only motion is the items arriving. Same studio lighting throughout — no lighting changes.
+
+STYLE: Hyperrealistic food photography aesthetic maintained throughout the entire animation. Pure white #FFFFFF background at all times. Think high-end food editorial meets satisfying product reveal. The cascade should feel like watching a masterchef set a table in fast-forward.
+
+DURATION: 6-7 seconds total.
+ASPECT RATIO: 16:9
+QUALITY: Minimum 24fps, photorealistic textures and materials maintained throughout all motion, no compression artifacts on fast-moving items.
+
+REVERSE VERSION: Start with fully loaded table — all items simultaneously lift off in a dramatic explosion outward, flying off all edges of frame, leaving the bare empty table. Equally scroll-stopping.
+LOOP VERSION: Forward fill + reverse explosion, seamless loop.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const confettiCtx = confettiCanvas.getContext('2d');
+    let confettiPieces = [];
+    let confettiAnimating = false;
+
+    function resizeConfetti() { confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+    resizeConfetti();
+    window.addEventListener('resize', resizeConfetti);
+
+    const confettiColors = ['#BFF549', '#FACC15', '#60a5fa', '#f472b6', '#a78bfa', '#34d399', '#fb923c', '#fff'];
+
+    function launchConfetti() {
+      confettiPieces = [];
+      for (let i = 0; i < 150; i++) {
+        confettiPieces.push({
+          x: window.innerWidth / 2 + (Math.random() - 0.5) * 200, y: window.innerHeight / 2,
+          vx: (Math.random() - 0.5) * 20, vy: -(Math.random() * 18 + 6),
+          w: Math.random() * 10 + 5, h: Math.random() * 6 + 3,
+          color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+          rotation: Math.random() * 360, rotationSpeed: (Math.random() - 0.5) * 15,
+          gravity: 0.35 + Math.random() * 0.15, opacity: 1,
+          decay: 0.008 + Math.random() * 0.008, shape: Math.random() > 0.5 ? 'rect' : 'circle'
+        });
+      }
+      if (!confettiAnimating) { confettiAnimating = true; animateConfetti(); }
+    }
+
+    function animateConfetti() {
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = 0;
+      for (const p of confettiPieces) {
+        if (p.opacity <= 0) continue;
+        alive++;
+        p.x += p.vx; p.vy += p.gravity; p.y += p.vy; p.vx *= 0.99;
+        p.rotation += p.rotationSpeed; p.opacity -= p.decay;
+        confettiCtx.save();
+        confettiCtx.translate(p.x, p.y);
+        confettiCtx.rotate((p.rotation * Math.PI) / 180);
+        confettiCtx.globalAlpha = Math.max(0, p.opacity);
+        confettiCtx.fillStyle = p.color;
+        if (p.shape === 'rect') { confettiCtx.fillRect(-p.w/2, -p.h/2, p.w, p.h); }
+        else { confettiCtx.beginPath(); confettiCtx.arc(0, 0, p.w/2, 0, Math.PI*2); confettiCtx.fill(); }
+        confettiCtx.restore();
+      }
+      if (alive > 0) { requestAnimationFrame(animateConfetti); }
+      else { confettiAnimating = false; confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height); }
+    }
+
+    const tabsData = {
+      A: { label: 'Prompt A &mdash; Image Generator', title: 'Empty Table', iconClass: 'a', tagClass: 'img',
+        tagIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+        tagText: '16:9 &middot; Image Generator' },
+      B: { label: 'Prompt B &mdash; Image Generator', title: 'Loaded Table', iconClass: 'b', tagClass: 'img',
+        tagIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+        tagText: '16:9 &middot; Reference Prompt A' },
+      C: { label: 'Prompt C &mdash; Video Model', title: 'Video Transition', iconClass: 'c', tagClass: 'vid',
+        tagIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+        tagText: 'Start: A &middot; End: B' }
+    };
+
+    let currentTab = 'A';
+
+    function switchTab(tab) {
+      if (tab === currentTab) return;
+      currentTab = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+      const info = tabsData[tab];
+      const icon = document.getElementById('panelIcon');
+      icon.textContent = tab; icon.className = 'panel-icon ' + info.iconClass;
+      document.getElementById('panelLabel').innerHTML = info.label;
+      document.getElementById('panelTitle').textContent = info.title;
+      const tag = document.getElementById('panelTag');
+      tag.className = 'instruction-tag ' + info.tagClass;
+      tag.innerHTML = info.tagIcon + ' <span>' + info.tagText + '</span>';
+      const btn = document.getElementById('copyBtn');
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+      document.querySelectorAll('.prompt-content').forEach(c => c.classList.remove('active'));
+      requestAnimationFrame(() => { document.getElementById('content' + tab).classList.add('active'); });
+    }
+
+    function copyCurrentPrompt() {
+      const content = document.querySelector('.prompt-content.active .prompt-text');
+      const text = content.textContent;
+      const btn = document.getElementById('copyBtn');
+      navigator.clipboard.writeText(text).then(() => {
+        launchConfetti();
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+        }, 2000);
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '1') switchTab('A');
+      if (e.key === '2') switchTab('B');
+      if (e.key === '3') switchTab('C');
+      if ((e.metaKey || e.ctrlKey) && e.key === 'c' && !window.getSelection().toString()) { e.preventDefault(); copyCurrentPrompt(); }
+    });
+  </script>
+</body>
+</html>

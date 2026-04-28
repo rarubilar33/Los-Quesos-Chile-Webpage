@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu carrito — Los Quesos de Chile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yellow: #F2C832;
+      --yellow-dark: #d4a900;
+      --font-body: 'Jost', sans-serif;
+      --font-display: 'Cormorant Garamond', serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: #fff; color: #1a0e00; overflow-x: hidden; }
+
+    /* ─── NAVBAR ─── */
+    #nav-top-fade { position:fixed;top:0;left:0;right:0;height:90px;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 100%);pointer-events:none;z-index:98; }
+    #navbar { position:fixed;top:0;left:0;right:0;z-index:99;display:flex;align-items:center;justify-content:space-between;height:72px;padding:0 40px;background:transparent;transition:height 0.45s,background 0.45s; }
+    #navbar.scrolled { background:rgba(26,14,0,0.96);backdrop-filter:blur(10px);height:54px; }
+    .nav-logo-wrap img { height:60px;width:auto;display:block;transition:height 0.45s; }
+    #navbar.scrolled .nav-logo-wrap img { height:44px; }
+    .nav-links { display:flex;gap:32px;list-style:none; }
+    .nav-link { font-family:var(--font-body);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#f5f0e8;text-decoration:none;font-weight:500; }
+    .nav-link:hover { color:#fff; }
+    .nav-icons { display:flex;align-items:center;gap:6px;margin-left:8px; }
+    .nav-icon-btn { display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:transparent;color:#f5f0e8;cursor:pointer;border-radius:50%;transition:background 0.2s; }
+    .nav-icon-btn:hover { background:rgba(255,255,255,0.1); }
+    .nav-icon-btn svg { width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round; }
+    .cart-badge { position:absolute;top:-5px;right:-5px;background:#d4a900;color:#1a0e00;font-size:8.5px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:var(--font-body);pointer-events:none; }
+
+    /* ─── PAGE ─── */
+    #cart-page { max-width:1160px;margin:0 auto;padding:130px 40px 80px; }
+    .cart-page-title { font-family:var(--font-display);font-size:clamp(36px,4vw,56px);font-weight:400;color:#1a0e00;margin-bottom:8px; }
+    .cart-page-label { font-family:var(--font-body);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#d4a900;font-weight:600;margin-bottom:16px;display:block; }
+    #cart-layout { display:grid;grid-template-columns:1fr 340px;gap:60px;align-items:start;margin-top:48px; }
+
+    /* ─── ITEMS TABLE ─── */
+    #cart-table-head { display:grid;grid-template-columns:1fr 120px 100px 40px;gap:16px;padding-bottom:12px;border-bottom:1px solid #e8ddd0;font-family:var(--font-body);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#b0a090;font-weight:600; }
+    .cart-page-items { margin-top:0; }
+    .cart-page-item { display:grid;grid-template-columns:1fr 120px 100px 40px;gap:16px;align-items:center;padding:20px 0;border-bottom:1px solid #f0e8dc; }
+    .cp-item-left { display:flex;gap:16px;align-items:center; }
+    .cp-item-img { width:80px;height:80px;object-fit:contain;background:#faf7f2;border-radius:6px;border:1px solid #ede5d8;flex-shrink:0; }
+    .cp-item-name { font-family:var(--font-body);font-size:14px;font-weight:400;color:#1a0e00;margin-bottom:4px; }
+    .cp-item-unit { font-family:var(--font-body);font-size:12px;color:#b0a090;font-weight:300; }
+    .cp-item-qty { display:flex;align-items:center;gap:8px; }
+    .cart-qty-btn { background:none;border:1px solid #c8baa8;width:28px;height:28px;border-radius:2px;cursor:pointer;font-size:15px;color:#1a0e00;display:flex;align-items:center;justify-content:center;transition:background 0.2s,color 0.2s,border-color 0.2s; }
+    .cart-qty-btn:hover { background:#1a0e00;color:#faf7f2;border-color:#1a0e00; }
+    .cart-qty-num { font-family:var(--font-body);font-size:14px;font-weight:500;color:#1a0e00;min-width:20px;text-align:center; }
+    .cp-item-total { font-family:var(--font-body);font-size:14px;font-weight:500;color:#1a0e00; }
+    .cp-item-remove { background:none;border:none;cursor:pointer;color:#c0b0a0;font-size:16px;transition:color 0.2s; }
+    .cp-item-remove:hover { color:#1a0e00; }
+    #cart-empty-page { padding:60px 0;text-align:center;font-family:var(--font-body);color:#b0a090;font-size:15px;font-weight:300; }
+    #cart-empty-page a { color:#d4a900;text-decoration:none;font-weight:500; }
+    #cart-empty-page a:hover { text-decoration:underline; }
+
+    /* ─── ORDER SUMMARY ─── */
+    #cart-summary { background:#faf7f2;padding:32px;position:sticky;top:100px; }
+    .summary-title { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00;margin-bottom:24px; }
+    .summary-row { display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:var(--font-body);font-size:14px;color:#7a6a50;font-weight:300; }
+    .summary-row.total { border-top:1px solid #e8ddd0;padding-top:16px;margin-top:8px;font-weight:500; }
+    .summary-row.total span:first-child { font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#1a0e00;font-weight:600; }
+    .summary-row.total span:last-child { font-family:var(--font-display);font-size:28px;font-weight:400;color:#1a0e00; }
+    #checkout-btn { display:block;width:100%;text-align:center;padding:17px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;text-decoration:none;margin-top:20px;transition:background 0.25s;cursor:pointer;border:none; }
+    #checkout-btn:hover { background:#3d1f00; }
+    .summary-note { font-family:var(--font-body);font-size:11px;color:#b0a090;text-align:center;margin-top:14px;line-height:1.6; }
+
+    /* ─── COMPLETE YOUR CART ─── */
+    #cart-complete { margin-top:72px;padding-top:52px;border-top:1px solid #e8ddd0; }
+    .complete-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;color:#d4a900;font-weight:600;margin-bottom:10px;display:block; }
+    .complete-title { font-family:var(--font-display);font-size:clamp(28px,3vw,42px);font-weight:400;color:#1a0e00;margin-bottom:40px; }
+    #complete-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:24px; }
+    .complete-card { background:#faf7f2;padding:24px;display:flex;flex-direction:column;gap:16px; }
+    .complete-card-img { width:100%;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:4px; }
+    .complete-card-name { font-family:var(--font-body);font-size:13.5px;font-weight:400;color:#1a0e00; }
+    .complete-card-price { font-family:var(--font-body);font-size:13px;color:#7a6a50;font-weight:300; }
+    .complete-card-btn { display:block;text-align:center;padding:11px;background:none;border:1.5px solid #1a0e00;color:#1a0e00;font-family:var(--font-body);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:background 0.2s,color 0.2s;margin-top:auto; }
+    .complete-card-btn:hover { background:#1a0e00;color:#faf7f2; }
+
+    /* ─── CART PANEL (for badge only on this page) ─── */
+    #cart-overlay { position:fixed;inset:0;background:rgba(26,14,0,0.38);z-index:199;opacity:0;pointer-events:none;transition:opacity 0.4s ease; }
+    #cart-overlay.open { opacity:1;pointer-events:auto; }
+    #cart-panel { position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:#faf7f2;z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);box-shadow:-6px 0 48px rgba(26,14,0,0.14); }
+    #cart-panel.open { transform:translateX(0); }
+    #cart-panel-header { display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-count-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00; }
+    #cart-close { background:none;border:none;cursor:pointer;color:#1a0e00;font-size:18px;line-height:1;padding:4px;opacity:0.45;transition:opacity 0.2s; }
+    #cart-close:hover { opacity:1; }
+    #cart-panel-body { flex:1;overflow-y:auto; }
+    #cart-items { padding:8px 28px 0; }
+    .cart-item { display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid #ede5d8; }
+    .cart-item:last-child { border-bottom:none; }
+    .cart-item-img { width:68px;height:68px;object-fit:contain;background:#fff;border-radius:6px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-item-info { flex:1;min-width:0; }
+    .cart-item-name { font-family:var(--font-body);font-size:13.5px;font-weight:400;color:#1a0e00;margin-bottom:3px; }
+    .cart-item-price { font-family:var(--font-body);font-size:13px;color:#7a6a50;font-weight:300;margin-bottom:10px; }
+    .cart-item-qty { display:flex;align-items:center;gap:8px; }
+    .cart-item-remove { background:none;border:none;cursor:pointer;color:#c0b0a0;font-size:14px;padding:2px 4px;transition:color 0.2s;flex-shrink:0; }
+    .cart-item-remove:hover { color:#1a0e00; }
+    #cart-empty-msg { text-align:center;padding:52px 28px;font-family:var(--font-body);color:#b0a090;font-size:14px;font-weight:300; }
+    #cart-recommendations { padding:20px 28px;border-top:1px solid #e8ddd0; }
+    .cart-rec-title { font-family:var(--font-body);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;font-weight:600;color:#d4a900;margin-bottom:14px; }
+    .cart-rec-item { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0e8dc; }
+    .cart-rec-item:last-child { border-bottom:none; }
+    .cart-rec-img { width:50px;height:50px;object-fit:contain;background:#fff;border-radius:4px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-rec-info { flex:1;min-width:0; }
+    .cart-rec-name { font-family:var(--font-body);font-size:12.5px;color:#1a0e00;font-weight:400;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .cart-rec-price { font-family:var(--font-body);font-size:11.5px;color:#7a6a50;font-weight:300; }
+    .cart-rec-add { background:none;border:1.5px solid #1a0e00;color:#1a0e00;padding:6px 14px;font-family:var(--font-body);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;cursor:pointer;border-radius:2px;transition:background 0.2s,color 0.2s;flex-shrink:0; }
+    .cart-rec-add:hover { background:#1a0e00;color:#faf7f2; }
+    #cart-panel-footer { padding:20px 28px 28px;border-top:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-subtotal-row { display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px; }
+    #cart-subtotal-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;color:#7a6a50; }
+    #cart-subtotal { font-family:var(--font-display);font-size:26px;font-weight:400;color:#1a0e00; }
+    #cart-go-btn { display:block;width:100%;text-align:center;padding:16px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;text-decoration:none;transition:background 0.25s; }
+    #cart-go-btn:hover { background:#3d1f00; }
+
+    /* ─── SITE FOOTER ─── */
+    #site-footer { background: #fff; border-top: 1px solid #e8ddd0; padding: 70px 80px 50px; }
+    #footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 80px; max-width: 1400px; margin: 0 auto; }
+    #footer-info { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; gap: 0 60px; flex: 1; }
+    .footer-col { display: flex; flex-direction: column; gap: 10px; }
+    .footer-divider { background: #e8ddd0; align-self: stretch; }
+    .footer-label { font-size: 13.2px; letter-spacing: 0.22em; text-transform: uppercase; color: #d4a900; font-weight: 600; margin-bottom: 6px; }
+    .footer-text { font-size: 17.8px; line-height: 1.75; color: #7a6a50; font-weight: 300; }
+    .footer-text a { color: #d4a900; text-decoration: none; }
+    .footer-text a:hover { text-decoration: underline; }
+    #footer-nav { display: flex; flex-direction: column; gap: 14px; padding-left: 60px; border-left: 1px solid #e8ddd0; flex-shrink: 0; }
+    #footer-nav a { font-family: var(--font-body); font-size: 14.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7a6a50; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    #footer-nav a:hover { color: #1a0e00; }
+    #footer-bottom { text-align: center; padding-top: 40px; margin-top: 50px; border-top: 1px solid #e8ddd0; font-size: 14.5px; letter-spacing: 0.08em; color: #b0a090; }
+    @media (max-width: 900px) {
+      #cart-layout { grid-template-columns: 1fr; }
+      #complete-grid { grid-template-columns: 1fr; }
+      #cart-table-head { display: none; }
+      .cart-page-item { grid-template-columns: 1fr auto; }
+      #footer-inner { flex-direction: column; }
+      #footer-info { grid-template-columns: 1fr; gap: 40px; }
+      .footer-divider { display: none; }
+      #footer-nav { border-left: none; padding-left: 0; border-top: 1px solid #e8ddd0; padding-top: 40px; }
+      #site-footer { padding: 60px 32px 40px; }
+      #cart-page { padding: 110px 24px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="nav-top-fade"></div>
+  <nav id="navbar">
+    <a href="index.html" class="nav-logo-wrap">
+      <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile">
+    </a>
+    <ul class="nav-links">
+      <li><a class="nav-link" href="nuestros-quesos.html">Quesos</a></li>
+      <li><a class="nav-link" href="acompañamientos.html">Acompañamientos</a></li>
+      <li><a class="nav-link" href="catering.html">Catering</a></li>
+      <li><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+    </ul>
+    <div class="nav-icons">
+      <button class="nav-icon-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="22" y2="22"></line></svg></button>
+      <button class="nav-icon-btn" aria-label="Mi cuenta"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
+      <button class="nav-icon-btn" aria-label="Carrito" style="position:relative;">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <span class="cart-badge"></span>
+      </button>
+    </div>
+  </nav>
+
+  <div id="cart-page">
+    <span class="cart-page-label">Carrito</span>
+    <h1 class="cart-page-title">Tu selección</h1>
+
+    <div id="cart-layout">
+      <!-- Items -->
+      <div>
+        <div id="cart-table-head">
+          <span>Producto</span>
+          <span style="text-align:center;">Cantidad</span>
+          <span style="text-align:right;">Total</span>
+          <span></span>
+        </div>
+        <div class="cart-page-items" id="cart-page-items"></div>
+      </div>
+
+      <!-- Summary -->
+      <div id="cart-summary">
+        <p class="summary-title">Resumen del pedido</p>
+        <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">$0</span></div>
+        <div class="summary-row"><span>Despacho</span><span id="summary-shipping">Calculado al pagar</span></div>
+        <div class="summary-row total"><span>Total</span><span id="summary-total">$0</span></div>
+        <a href="checkout.html" id="checkout-btn">Finalizar compra</a>
+        <p class="summary-note">Pago seguro · Devolución en 30 días</p>
+      </div>
+    </div>
+
+    <!-- Complete your cart -->
+    <div id="cart-complete">
+      <span class="complete-label">Sugerencias</span>
+      <h2 class="complete-title">Completa tu tabla</h2>
+      <div id="complete-grid"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SITE FOOTER ═══ -->
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div id="footer-info">
+        <div class="footer-col" style="justify-content:center;">
+          <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile" style="width:100%;height:auto;display:block;">
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Horarios</p>
+          <p class="footer-text">Lunes a viernes: 9:00 am – 8:30 pm<br>Sábado: 10:00 am – 6:30 pm<br>Domingo: cerrado</p>
+          <p class="footer-text" style="margin-top:10px;"><a href="https://maps.google.com/?q=Nueva+de+Lyon+116+Providencia" target="_blank">Nueva de Lyon 116, local 3, Providencia</a><br>A media cuadra del metro Los Leones</p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Contacto</p>
+          <p class="footer-text"><a href="https://wa.me/56992656723">+56 9 9265 6723</a><br><a href="mailto:contacto@losquesosdechile.cl">contacto@losquesosdechile.cl</a></p>
+        </div>
+      </div>
+      <nav id="footer-nav">
+        <a href="index.html">Inicio</a>
+        <a href="nuestros-quesos.html">Nuestros Quesos</a>
+        <a href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+        <a href="catering.html">Catering</a>
+        <a href="nosotros.html">Nosotros</a>
+      </nav>
+    </div>
+    <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
+  </footer>
+
+  <!-- Cart panel (for panel opened from navbar) -->
+  <div id="cart-overlay"></div>
+  <div id="cart-panel">
+    <div id="cart-panel-header">
+      <span id="cart-count-label">Tu carrito</span>
+      <button id="cart-close" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div id="cart-panel-body">
+      <div id="cart-items"></div>
+      <div id="cart-recommendations">
+        <p class="cart-rec-title">Completa tu carrito</p>
+        <div id="cart-rec-list"></div>
+      </div>
+    </div>
+    <div id="cart-panel-footer">
+      <div id="cart-subtotal-row">
+        <span id="cart-subtotal-label">Subtotal</span>
+        <span id="cart-subtotal">$0</span>
+      </div>
+      <a href="carrito.html" id="cart-go-btn">Ir a carrito</a>
+    </div>
+  </div>
+
+  <script src="cart.js"></script>
+  <script>
+    // Navbar scroll
+    var nb = document.getElementById('navbar');
+    window.addEventListener('scroll', function() {
+      nb.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // Render cart page items
+    function renderCartPage() {
+      var cart = LQDC.getCart();
+      var itemsEl = document.getElementById('cart-page-items');
+      var subtEl  = document.getElementById('summary-subtotal');
+      var totEl   = document.getElementById('summary-total');
+
+      if (cart.length === 0) {
+        itemsEl.innerHTML = '<div id="cart-empty-page">Tu carrito está vacío. <a href="nuestros-quesos.html">Ver productos →</a></div>';
+      } else {
+        itemsEl.innerHTML = cart.map(function(item) {
+          return '<div class="cart-page-item">'
+            + '<div class="cp-item-left">'
+            + '<img class="cp-item-img" src="' + item.img + '" alt="' + item.name + '">'
+            + '<div><div class="cp-item-name">' + item.name + '</div>'
+            + '<div class="cp-item-unit">' + LQDC.fmt(item.price) + ' / ud.</div></div>'
+            + '</div>'
+            + '<div class="cp-item-qty">'
+            + '<button class="cart-qty-btn" onclick="pageChangeQty(\'' + item.id + '\',-1)">−</button>'
+            + '<span class="cart-qty-num">' + item.qty + '</span>'
+            + '<button class="cart-qty-btn" onclick="pageChangeQty(\'' + item.id + '\',1)">+</button>'
+            + '</div>'
+            + '<div class="cp-item-total">' + LQDC.fmt(item.price * item.qty) + '</div>'
+            + '<button class="cp-item-remove" onclick="pageRemove(\'' + item.id + '\')" aria-label="Eliminar">✕</button>'
+            + '</div>';
+        }).join('');
+      }
+
+      var total = LQDC.getTotal();
+      if (subtEl) subtEl.textContent = LQDC.fmt(total);
+      if (totEl)  totEl.textContent  = LQDC.fmt(total);
+    }
+
+    function pageChangeQty(id, d) {
+      var cart = LQDC.getCart();
+      var idx = cart.findIndex(function(x){ return x.id === id; });
+      if (idx >= 0) { cart[idx].qty = Math.max(0, cart[idx].qty + d); if (!cart[idx].qty) cart.splice(idx,1); }
+      LQDC.saveCart(cart);
+      renderCartPage();
+    }
+    function pageRemove(id) {
+      LQDC.saveCart(LQDC.getCart().filter(function(x){ return x.id !== id; }));
+      renderCartPage();
+    }
+
+    // Render "complete your cart" section
+    function renderComplete() {
+      var cartIds = LQDC.getCart().map(function(i){ return i.id; });
+      var recs = LQDC.PRODUCTS.filter(function(p){ return cartIds.indexOf(p.id) < 0; }).slice(0,3);
+      var el = document.getElementById('complete-grid');
+      if (!el) return;
+      el.innerHTML = recs.map(function(p) {
+        return '<div class="complete-card">'
+          + '<img class="complete-card-img" src="' + p.img + '" alt="' + p.name + '">'
+          + '<div class="complete-card-name">' + p.name + '</div>'
+          + '<div class="complete-card-price">' + LQDC.fmt(p.price) + '</div>'
+          + '<button class="complete-card-btn" onclick="addComplete(\'' + p.id + '\')">+ Agregar al carrito</button>'
+          + '</div>';
+      }).join('');
+    }
+    function addComplete(id) {
+      var p = LQDC.PRODUCTS.find(function(x){ return x.id === id; });
+      if (p) { LQDC.addItem(p); renderCartPage(); renderComplete(); LQDC.openPanel(); }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderCartPage();
+      renderComplete();
+    });
+  </script>
+</body>
+</html>

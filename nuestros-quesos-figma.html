@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestros Quesos — Figma Flat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root{--yellow:#F2C832;--font-body:'Jost',sans-serif;--font-display:'Cormorant Garamond',serif;--cream:#faf7f2;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--font-body);background:var(--cream);color:#1a0e00;width:1440px;max-width:100%;}
+
+    /* NAVBAR */
+    #navbar{width:100%;background:rgba(26,14,0,0.96);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 40px;height:90px;}
+    .nav-left,.nav-right{display:flex;align-items:center;list-style:none;}
+    .nav-right{justify-content:flex-end;}
+    .nav-item{position:relative;}
+    .nav-link{display:block;padding:20px 18px;font-family:var(--font-body);font-size:11.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#f5f0e8;text-decoration:none;white-space:nowrap;}
+    .nav-item.active .nav-link{color:#fff;}
+    .nav-item.active .nav-link::after{content:'';position:absolute;bottom:14px;left:18px;right:18px;height:1.5px;background:var(--yellow);display:block;}
+    .nav-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+    .nav-logo-wrap img{height:64px;width:auto;}
+    .nav-logo-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);}
+    .nav-icons{display:flex;align-items:center;gap:6px;margin-left:8px;}
+    .nav-icon-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:none;background:transparent;color:#f5f0e8;cursor:pointer;border-radius:50%;}
+    .nav-icon-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+
+    /* HERO */
+    #page-hero{position:relative;width:100%;height:100vh;min-height:600px;overflow:hidden;}
+    #page-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    #page-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,rgba(0,0,0,0.1) 55%,rgba(0,0,0,0) 100%);}
+    #page-hero-content{position:absolute;bottom:90px;left:80px;z-index:2;max-width:560px;}
+    #page-hero-content p{font-family:var(--font-display);font-style:italic;font-size:34px;font-weight:400;line-height:1.4;color:#fff;text-shadow:0 2px 24px rgba(0,0,0,0.4);margin-bottom:32px;}
+    .hero-cta{display:inline-block;padding:14px 36px;font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#1a0e00;background:#fff;text-decoration:none;border:1.5px solid #fff;}
+
+    /* CATALOG */
+    #catalog{background:var(--cream);padding:80px 0 100px;}
+    #catalog-header{text-align:center;margin-bottom:52px;padding:0 40px;}
+    #catalog-header h2{font-family:var(--font-display);font-size:52px;font-weight:400;color:#1a0e00;margin-bottom:12px;}
+    #catalog-header h2 em{font-style:italic;color:var(--yellow);}
+    #catalog-header p{font-size:14px;color:#7a6a50;max-width:420px;margin:0 auto;}
+    #category-filters{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:48px;padding:0 40px;}
+    .cat-btn{padding:9px 20px;font-family:var(--font-body);font-size:10.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;border:1.5px solid #c8b490;background:transparent;color:#7a6a50;white-space:nowrap;}
+    .cat-btn.active{background:var(--yellow);border-color:var(--yellow);color:#1a0e00;}
+    #product-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:36px 28px;padding:0 60px;max-width:1300px;margin:0 auto;}
+    .product-card{display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .product-img-wrap{width:100%;aspect-ratio:1/1.1;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;}
+    .product-img-wrap img{width:100%;height:100%;object-fit:cover;}
+    .product-cat{font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#b09060;margin-bottom:5px;font-weight:500;}
+    .product-name{font-family:var(--font-body);font-size:13px;font-weight:400;color:#1a0e00;line-height:1.4;max-width:160px;margin-bottom:6px;}
+    .product-price{font-family:var(--font-body);font-size:12px;font-weight:600;color:#7a6a50;}
+    .product-price.agotado{color:#c0a080;font-weight:400;font-style:italic;}
+
+    /* FOOTER */
+    #site-footer{background:#fff;border-top:1px solid #e8ddd0;padding:70px 80px 50px;}
+    #footer-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:80px;max-width:1400px;margin:0 auto;}
+    #footer-info{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0 60px;flex:1;}
+    .footer-col{display:flex;flex-direction:column;gap:10px;}
+    .footer-divider{background:#e8ddd0;align-self:stretch;}
+    .footer-label{font-size:13.2px;letter-spacing:0.22em;text-transform:uppercase;color:#d4a900;font-weight:600;margin-bottom:6px;}
+    .footer-text{font-size:17.8px;line-height:1.75;color:#7a6a50;font-weight:300;}
+    .footer-text a{color:#d4a900;text-decoration:none;}
+    #footer-nav{display:flex;flex-direction:column;gap:14px;padding-left:60px;border-left:1px solid #e8ddd0;flex-shrink:0;}
+    #footer-nav a{font-family:var(--font-body);font-size:14.5px;letter-spacing:0.14em;text-transform:uppercase;color:#7a6a50;text-decoration:none;font-weight:500;}
+    #footer-bottom{text-align:center;padding-top:40px;margin-top:50px;border-top:1px solid #e8ddd0;font-size:14.5px;letter-spacing:0.08em;color:#b0a090;}
+  </style>
+</head>
+<body>
+
+  <nav id="navbar">
+    <ul class="nav-left">
+      <li class="nav-item"><a class="nav-link" href="#">Club</a></li>
+      <li class="nav-item active"><a class="nav-link" href="#">Nuestros Quesos</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Acompañamientos &amp; Cafetería</a></li>
+    </ul>
+    <div class="nav-logo-wrap">
+      <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile">
+      <span class="nav-logo-dot"></span>
+    </div>
+    <ul class="nav-right">
+      <li class="nav-item"><a class="nav-link" href="#">Regalos</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Catering</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Nosotros</a></li>
+      <li class="nav-item">
+        <div class="nav-icons">
+          <button class="nav-icon-btn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></button>
+          <button class="nav-icon-btn"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+          <button class="nav-icon-btn" style="position:relative;"><svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <section id="page-hero">
+    <img src="uploads/Cheese table.jpg" alt="Nuestros Quesos">
+    <div id="page-hero-overlay"></div>
+    <div id="page-hero-content">
+      <p>Quesos artesanales de todo Chile,<br>hechos con tiempo, territorio y sabor real.</p>
+      <a class="hero-cta" href="#">Descubre nuestros quesos ↓</a>
+    </div>
+  </section>
+
+  <section id="catalog">
+    <div id="catalog-header">
+      <h2><em>Explora</em> todas las categorías</h2>
+      <p>Desde los clásicos de siempre hasta quesos únicos que te invitan a descubrir algo diferente.</p>
+    </div>
+    <div id="category-filters">
+      <button class="cat-btn active">Todos</button>
+      <button class="cat-btn">Maduros y de Guarda</button>
+      <button class="cat-btn">Pasta Blanda</button>
+      <button class="cat-btn">Mantecosos</button>
+      <button class="cat-btn">Cabra</button>
+      <button class="cat-btn">Azules y Especialidades</button>
+    </div>
+    <div id="product-grid">
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/herencia.jpg" alt="Queso Maduro Herencia de Campo"></div>
+        <div class="product-cat">Maduros y de Guarda</div>
+        <div class="product-name">Queso Maduro Herencia de Campo 250g</div>
+        <div class="product-price">$12.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/parmesano.jpg" alt="Parmesano tipo Grana Padano"></div>
+        <div class="product-cat">Maduros y de Guarda</div>
+        <div class="product-name">Parmesano tipo Grana Padano</div>
+        <div class="product-price">$7.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/oveja-maduro.jpg" alt="Queso Maduro de Oveja"></div>
+        <div class="product-cat">Maduros y de Guarda</div>
+        <div class="product-name">Queso Maduro de Oveja</div>
+        <div class="product-price">$9.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/gruyere.jpg" alt="Queso Gruyere"></div>
+        <div class="product-cat">Maduros y de Guarda</div>
+        <div class="product-name">Queso Gruyere</div>
+        <div class="product-price">$8.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/edam-natural.jpg" alt="Edam Natural"></div>
+        <div class="product-cat">Maduros y de Guarda</div>
+        <div class="product-name">Edam Natural</div>
+        <div class="product-price">$6.000</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/edam-merken.jpg" alt="Edam Merkén"></div>
+        <div class="product-cat">Maduros y de Guarda</div>
+        <div class="product-name">Edam Merkén</div>
+        <div class="product-price">$6.000</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/nimbus.jpg" alt="Nimbus"></div>
+        <div class="product-cat">Pasta Blanda</div>
+        <div class="product-name">Nimbus</div>
+        <div class="product-price agotado">Agotado</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/undam.jpg" alt="Undam"></div>
+        <div class="product-cat">Pasta Blanda</div>
+        <div class="product-name">Undam</div>
+        <div class="product-price">$10.900</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/camembert-quiman.jpg" alt="Camembert Quimán"></div>
+        <div class="product-cat">Pasta Blanda</div>
+        <div class="product-name">Queso Camembert Quimán 250g</div>
+        <div class="product-price">$9.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/cahuelche.jpg" alt="Camembert Cahuelche"></div>
+        <div class="product-cat">Pasta Blanda</div>
+        <div class="product-name">Camembert Cahuelche</div>
+        <div class="product-price">$7.800</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/burrata.jpg" alt="Burrata Fior di Latte"></div>
+        <div class="product-cat">Pasta Blanda</div>
+        <div class="product-name">Burrata Fior di Latte 160g</div>
+        <div class="product-price">$7.000</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/muermos.jpg" alt="Mantecoso Los Muermos"></div>
+        <div class="product-cat">Mantecosos</div>
+        <div class="product-name">Mantecoso Madurado Los Muermos</div>
+        <div class="product-price">$14.000</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/komuy.jpg" alt="Mantecoso Komuy"></div>
+        <div class="product-cat">Mantecosos</div>
+        <div class="product-name">Queso Mantecoso Komuy</div>
+        <div class="product-price">$14.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/ahumado.jpg" alt="Mantecoso Ahumado Natural"></div>
+        <div class="product-cat">Mantecosos</div>
+        <div class="product-name">Mantecoso Ahumado Natural</div>
+        <div class="product-price">$9.000</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/cabra-500.jpg" alt="Queso de Cabra Huancarane"></div>
+        <div class="product-cat">Cabra</div>
+        <div class="product-name">Queso de Cabra Huancarane 500g</div>
+        <div class="product-price">$11.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/cabra-aceitunas.jpg" alt="Queso de Cabra con Aceitunas"></div>
+        <div class="product-cat">Cabra</div>
+        <div class="product-name">Queso de Cabra con Aceitunas de Azapa</div>
+        <div class="product-price">$11.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/azul.jpg" alt="Queso Azul Natural"></div>
+        <div class="product-cat">Azules y Especialidades</div>
+        <div class="product-name">Queso Azul 100% Natural</div>
+        <div class="product-price">$6.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/mozzarella.jpg" alt="Mozzarella Pizzera"></div>
+        <div class="product-cat">Azules y Especialidades</div>
+        <div class="product-name">Mozzarella Pizzera 500g</div>
+        <div class="product-price">$9.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/feta.jpg" alt="Queso Feta de Oveja"></div>
+        <div class="product-cat">Azules y Especialidades</div>
+        <div class="product-name">Queso Feta de Oveja</div>
+        <div class="product-price">$7.500</div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-img-wrap"><img src="uploads/products/semimaduro-oveja.jpg" alt="Queso Semimaduro de Oveja"></div>
+        <div class="product-cat">Azules y Especialidades</div>
+        <div class="product-name">Queso Semimaduro de Oveja</div>
+        <div class="product-price">$9.000</div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div id="footer-info">
+        <div class="footer-col" style="justify-content:center;">
+          <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile" style="width:100%;height:auto;display:block;">
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Horarios</p>
+          <p class="footer-text">Lunes a viernes: 9:00 am – 8:30 pm<br>Sábado: 10:00 am – 6:30 pm<br>Domingo: cerrado</p>
+          <p class="footer-text" style="margin-top:10px;"><a href="#">Nueva de Lyon 116, local 3, Providencia</a><br>A media cuadra del metro Los Leones</p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Contacto</p>
+          <p class="footer-text"><a href="#">+56 9 9265 6723</a><br><a href="#">contacto@losquesosdechile.cl</a></p>
+          <div style="display:flex;gap:16px;margin-top:16px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5.5" stroke="#1a0e00" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" stroke="#1a0e00" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.1" fill="#1a0e00"/></svg>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M17 2h-3a5 5 0 0 0-5 5v3H6v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" stroke="#1a0e00" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+      <nav id="footer-nav">
+        <a href="#">Inicio</a>
+        <a href="#">Nuestros Quesos</a>
+        <a href="#">Acompañamientos &amp; Cafetería</a>
+        <a href="#">Catering</a>
+        <a href="#">Nosotros</a>
+      </nav>
+    </div>
+    <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
+  </footer>
+
+</body>
+</html>
