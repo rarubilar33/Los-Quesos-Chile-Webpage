@@ -314,32 +314,22 @@
     #cheese-scroll-outer {
       height: 100vh;
       margin-top: 30vh;
-      position: relative;
       background: #fff;
+      display: flex;
+      align-items: center;
       overflow: hidden;
     }
     #cheese-sticky {
-      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
       height: 100%;
-      background: #fff;
-      overflow: hidden;
+      padding: 0 80px;
+      gap: 60px;
     }
-    #cheese-static-img {
-      position: absolute;
-      top: 8.75vh;
-      left: calc(50% - 54vh);
-      height: 175vh;
-      width: auto;
-      pointer-events: none;
-    }
-    /* Nosotros text — left side */
     #nosotros-text {
-      position: absolute;
-      left: 17.06vw;
-      top: 50%;
-      transform: translateY(-50%);
-      max-width: 28vw;
-      z-index: 10;
+      flex: 0 0 38%;
+      max-width: 38%;
     }
     #nosotros-text .reveal-label {
       display: block;
@@ -379,6 +369,13 @@
       color: #1a0e00;
       text-decoration: none;
       margin-top: 8px;
+    }
+    #cheese-static-img {
+      flex: 1;
+      max-height: 85vh;
+      width: auto;
+      object-fit: contain;
+      display: block;
     }
 
     /* ── FEATURED PRODUCTS ─────────────────────────────── */
@@ -824,7 +821,6 @@
   <!-- ═══ SECTION 2 — CHEESE FIRST FRAME + NOSOTROS TEXT ═══ -->
   <div id="cheese-scroll-outer">
     <div id="cheese-sticky">
-      <img id="cheese-static-img" src="Animations/Animation Cheese/frame_0001.jpg" alt="">
       <div id="nosotros-text">
         <span class="reveal-label">Nosotros</span>
         <h2>Ocho años buscando<br>el queso perfecto.</h2>
@@ -832,6 +828,7 @@
         <p>Hoy, Los Quesos de Chile reúne una selección de más de 15 productores artesanales — leche de vaca, cabra y oveja — acercando cada queso directamente desde su origen hasta tu mesa.</p>
         <a href="nosotros.html" class="cta-tienda">Nosotros</a>
       </div>
+      <img id="cheese-static-img" src="Animations/Animation Cheese/frame_0001.jpg" alt="">
     </div>
   </div>
 
