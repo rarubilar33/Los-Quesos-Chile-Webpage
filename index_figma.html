@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Los Quesos de Chile — Figma</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --yellow: #F2C832;
+      --yellow-dark: #d4a900;
+      --nav-height: 72px;
+      --nav-height-scrolled: 54px;
+      --text-nav: #f5f0e8;
+      --text-nav-hover: #ffffff;
+      --font-body: 'Jost', sans-serif;
+      --font-display: 'Cormorant Garamond', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: #fff;
+      color: #1a0e00;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVBAR ─── */
+    #nav-top-fade {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 110px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0) 100%);
+      z-index: 99;
+      pointer-events: none;
+    }
+
+    #navbar {
+      position: absolute;
+      top: 28px; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-height);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 0 40px;
+    }
+
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      list-style: none;
+    }
+    .nav-right { justify-content: flex-end; }
+
+    .nav-item { position: relative; }
+
+    .nav-link {
+      display: block;
+      padding: 26px 18px;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-nav);
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 16px;
+      left: 18px; right: 18px;
+      height: 1.5px;
+      background: var(--yellow);
+      transform: scaleX(0);
+      transform-origin: left center;
+    }
+
+    .nav-item.active > .nav-link::after { transform: scaleX(1); }
+
+    .nav-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .nav-logo-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--yellow);
+      flex-shrink: 0;
+    }
+    .nav-logo-wrap img {
+      height: 72px; width: auto;
+      display: block;
+    }
+    .nav-logo-wrap img:hover { opacity: 0.88; }
+
+    .nav-icons {
+      display: flex; align-items: center;
+      gap: 6px; margin-left: 8px;
+    }
+    .nav-icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border: none; background: transparent;
+      color: var(--text-nav); cursor: pointer;
+      border-radius: 50%;
+    }
+    .nav-icon-btn svg {
+      width: 17px; height: 17px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: calc(100% - 2px); left: 0;
+      min-width: 220px;
+      background: rgba(12, 10, 6, 0.97);
+      border-top: 2px solid var(--yellow);
+      padding: 10px 0 14px;
+      opacity: 0; pointer-events: none;
+      backdrop-filter: blur(16px);
+    }
+    .nav-right .dropdown { left: auto; right: 0; }
+    .nav-item:hover .dropdown { opacity: 1; pointer-events: auto; }
+
+    .dropdown-link {
+      display: block; padding: 10px 24px;
+      font-size: 11px; letter-spacing: 0.13em;
+      font-weight: 500; text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.75);
+      text-decoration: none;
+    }
+    .dropdown-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 6px 24px; }
+    .dropdown-sep { border: none; border-top: 1px solid rgba(242,200,50,0.25); margin: 8px 24px; }
+
+    /* ─── HERO ─── */
+    #hero-wrapper {
+      position: relative;
+      height: 100vh;
+    }
+
+    #hero-sticky {
+      position: relative;
+      height: 100vh; width: 100%;
+      overflow: hidden;
+    }
+
+    #hero-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; z-index: 0;
+    }
+
+    #hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.1) 55%,
+        rgba(0,0,0,0.0) 100%
+      );
+      z-index: 1;
+    }
+
+    #hero-top-mask {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, transparent 100%);
+      z-index: 5; pointer-events: none;
+    }
+
+    #hero-text-container {
+      position: absolute;
+      bottom: 130px; left: 80px;
+      z-index: 6; max-width: 860px;
+    }
+
+    #hero-tagline {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: clamp(40px, 4.8vw, 68px);
+      font-weight: 400; line-height: 1.15;
+      color: #fff;
+      text-shadow: 0 2px 40px rgba(0,0,0,0.4);
+      letter-spacing: 0.01em; max-width: 860px;
+      opacity: 1;
+    }
+
+    #hero-tagline em { font-style: normal; color: var(--yellow); }
+
+    #hero-paragraph { margin-top: 20px; }
+
+    .hero-para-line {
+      display: block;
+      font-family: var(--font-body);
+      font-size: clamp(15px, 1.6vw, 19px);
+      font-weight: 300; letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.90);
+      line-height: 1.6; margin-bottom: 22px;
+    }
+
+    .hero-cta-wrap { margin-top: 20px; }
+
+    .hero-cta {
+      display: inline-block; padding: 14px 36px;
+      font-family: var(--font-body);
+      font-size: 13.31px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #1a0e00; background: #fff;
+      text-decoration: none; border: 1.5px solid #fff;
+    }
+
+    #hero-wave-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 150;
+      line-height: 0;
+      pointer-events: none;
+      transform: translateY(0);
+    }
+    #hero-wave-bottom svg { width: 100%; height: 31.15vh; display: block; }
+
+    /* ─── HERO REVIEW CARD ─── */
+    #hero-review-card {
+      position: absolute;
+      right: 72px;
+      top: calc(150px + 49.5vh);
+      z-index: 90;
+      width: 253px;
+      background: rgba(250, 247, 242, 0.28);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 14px 16px 16px;
+      overflow: hidden;
+      transform: translateX(0);
+      opacity: 1;
+    }
+    #hr-badge-label {
+      font-family: var(--font-body);
+      font-size: 8.5px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #d4a900;
+      margin-bottom: 4px;
+    }
+    #hr-subtitle {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 500;
+      color: #1a0e00;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      margin-left: -2%;
+    }
+    #hr-avatars-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      margin: 0 -10px 12px;
+      width: calc(100% + 20px);
+    }
+    .hr-av {
+      aspect-ratio: 1;
+      width: 100%;
+      border-radius: 50%;
+      border: 1.5px solid rgba(250,247,242,0.6);
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hr-av-1 { background: #d4a900; color: #1a0e00; }
+    .hr-av-2 { background: #3d1f00; color: #faf7f2; }
+    .hr-av-3 { background: #e8c055; color: #1a0e00; }
+    .hr-av-4 { background: #7a6a50; color: #faf7f2; }
+    .hr-av-5 { background: #c49228; color: #1a0e00; }
+    .hr-av-6 { background: #5a3010; color: #faf7f2; }
+    #hr-footer { text-align: left; }
+    .hr-stars-row {
+      color: #d4a900;
+      font-size: 14px;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    #hr-count-text {
+      font-family: var(--font-body);
+      font-size: 10px;
+      color: #1a0e00;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── SECTION 2 — CHEESE ANIMATION (first frame) ─── */
+    #cheese-scroll-outer {
+      height: 100vh;
+      position: relative;
+      z-index: 3;
+      background: #fff;
+      overflow: hidden;
+    }
+    #cheese-sticky {
+      position: relative;
+      height: 100%;
+      background: #fff;
+      overflow: hidden;
+    }
+    #cheese-static-img {
+      position: absolute;
+      top: 5%;
+      left: 10%;
+      height: 175%;
+      width: auto;
+      pointer-events: none;
+    }
+
+    /* ── FEATURED PRODUCTS ─────────────────────────────── */
+    #featured-section {
+      position: relative;
+      z-index: 6;
+      background: #fff;
+      padding: 80px 0 72px;
+    }
+    #featured-heading {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    #featured-heading .featured-label {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    #featured-heading h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 3vw, 46px);
+      font-weight: 500;
+      color: #1a0e00;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    #featured-carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      height: 57vh;
+    }
+    #featured-track {
+      display: flex;
+      gap: 0;
+      height: 100%;
+      align-items: center;
+      transform: translateX(calc(50vw - 24.5vw));
+    }
+    .f-slide {
+      flex: 0 0 49vw;
+      margin-right: -15vw;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.38;
+      transform: scale(0.64);
+    }
+    .f-slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .f-slide img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      display: block;
+    }
+    .f-slide--circle img {
+      clip-path: circle(37% at 50% 47%);
+    }
+    .featured-arrow {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: clamp(18px, 1.6vw, 26px);
+      color: rgba(26,14,0,0.45);
+      padding: 0 18px;
+      line-height: 1;
+      vertical-align: middle;
+    }
+    #featured-info {
+      text-align: center;
+      padding: 25px 0 0;
+    }
+    #featured-cat {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(26,14,0,0.42);
+      margin: 0 0 10px;
+    }
+    #featured-name {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 2.2vw, 34px);
+      font-weight: 500;
+      color: #1a0e00;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
+    }
+    #featured-price {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(26,14,0,0.5);
+      margin: 0 0 28px;
+    }
+    #featured-ctas {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 0;
+    }
+    .cta-tienda {
+      display: inline-block;
+      padding: 13px 36px;
+      border: 1.5px solid #1a0e00;
+      border-radius: 2px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a0e00;
+      text-decoration: none;
+    }
+    .cta-cart {
+      width: 46px; height: 46px;
+      border: 1.5px solid #1a0e00;
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── SHIPPING SECTION ── */
+    #shipping-section {
+      background: #f7f5f2;
+      padding: 104px 4vw 115px;
+      text-align: center;
+    }
+    #shipping-section .section-label {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    #shipping-section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 400;
+      color: #1a0e00;
+      margin-bottom: 74px;
+      line-height: 1.2;
+    }
+    .shipping-grid {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr 1px 1fr;
+      gap: 0 46px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .shipping-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 23px;
+    }
+    .shipping-item:first-child { padding-left: 10%; }
+    .shipping-item:last-child  { padding-right: 10%; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-icon { width: 90px; height: 90px; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-icon svg { width: 39px; height: 39px; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-item-title { font-size: 14.5px; }
+    .shipping-grid > .shipping-item:nth-child(3) .shipping-item-text { font-size: 17.5px; }
+    .shipping-icon {
+      width: 78px; height: 78px;
+      border-radius: 50%;
+      background: #f5f0e8;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .shipping-icon svg {
+      width: 34px; height: 34px;
+      stroke: #1a0e00; fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .shipping-item-body { display: flex; flex-direction: column; gap: 9px; }
+    .shipping-item-title {
+      font-family: var(--font-body);
+      font-size: 12.5px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase; color: #1a0e00;
+    }
+    .shipping-item-text {
+      font-family: var(--font-body);
+      font-size: 15.5px; color: #7a6a50; line-height: 1.65;
+    }
+    .shipping-item-text strong { color: #1a0e00; font-weight: 500; }
+    .shipping-item-text a { color: var(--yellow-dark); text-decoration: none; font-weight: 500; }
+    .shipping-divider { width: 1px; background: #e8e0d0; align-self: stretch; margin: 0 10px; }
+
+    /* ─── SECTION 5 — TESTIMONIOS ─── */
+    #testimonials {
+      background: #fff;
+      padding: 110px 0 100px;
+      overflow: hidden;
+    }
+    #test-header {
+      text-align: center;
+      margin-bottom: 72px;
+      padding: 0 80px;
+    }
+    .test-pill {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    #test-header h2 {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 4vw, 54px);
+      font-weight: 400;
+      color: #1a0e00;
+      line-height: 1.15;
+    }
+    #test-header h2 em { font-style: italic; }
+    #test-stage { position: relative; width: 100%; overflow: hidden; }
+    #test-track {
+      display: flex;
+      gap: 28px;
+      align-items: stretch;
+      padding: 28px 80px;
+    }
+    .test-card {
+      flex-shrink: 0;
+      width: 560px;
+      padding: 26px 52px 24px;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .tc-dark  { background: #1a0e00; color: #faf7f2; }
+    .tc-yellow { background: #f2c832; color: #1a0e00; }
+    .tc-cream { background: #f0e8d8; color: #1a0e00; }
+    .tc-brown { background: #3d1f00; color: #faf7f2; }
+    .tc-sand  { background: #e4d6c0; color: #1a0e00; }
+    .test-stars { font-size: 15px; letter-spacing: 3px; color: #d4a900; }
+    .tc-dark .test-stars, .tc-brown .test-stars { color: #f2c832; }
+    .test-quote {
+      font-family: var(--font-display);
+      font-size: clamp(19px, 1.7vw, 24px);
+      line-height: 1.65;
+      font-weight: 400;
+      flex: 1;
+    }
+    .test-author {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-family: var(--font-body);
+      opacity: 0.6;
+    }
+    #test-heading-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .test-btn {
+      background: none; border: none; cursor: pointer;
+      font-family: var(--font-body);
+      font-size: clamp(18px, 1.6vw, 26px);
+      color: rgba(26,14,0,0.45);
+      padding: 0 18px; line-height: 1; flex-shrink: 0;
+    }
+
+    /* ─── CART BADGE ─── */
+    .cart-badge { position:absolute;top:-5px;right:-5px;background:#d4a900;color:#1a0e00;font-size:8.5px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:var(--font-body);pointer-events:none; }
+
+    /* ─── CONTACT FORM ─── */
+    #contact-section {
+      background: #faf7f2;
+      padding: 70px 80px;
+      text-align: center;
+    }
+    #contact-inner { max-width: 620px; margin: 0 auto; }
+    #contact-section .section-label-contact {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--yellow-dark);
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    #contact-section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 3.5vw, 52px);
+      font-weight: 400; color: #1a0e00;
+      line-height: 1.15; margin-bottom: 39px;
+    }
+    .contact-field { position: relative; margin-bottom: 25px; text-align: left; }
+    .contact-field input, .contact-field textarea {
+      width: 100%; background: transparent; border: none;
+      border-bottom: 1px solid rgba(26,14,0,0.25);
+      padding: 7px 0; font-family: var(--font-body);
+      font-size: 15px; font-weight: 300; color: #1a0e00; outline: none;
+    }
+    .contact-field label {
+      position: absolute; top: 7px; left: 0;
+      font-family: var(--font-body); font-size: 15px;
+      font-weight: 300; color: rgba(26,14,0,0.5); pointer-events: none;
+    }
+    .contact-submit {
+      margin-top: 8px; display: inline-block;
+      padding: 10.5px 52px; font-family: var(--font-body);
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: #faf7f2; background: #1a0e00;
+      border: 1.5px solid #1a0e00; cursor: pointer; text-decoration: none;
+    }
+
+    /* ─── SITE FOOTER ─── */
+    #site-footer { background: #fff; border-top: 1px solid #e8ddd0; padding: 70px 80px 50px; }
+    #footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 80px; max-width: 1400px; margin: 0 auto; }
+    #footer-info { display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr; gap: 0 60px; flex: 1; }
+    .footer-col { display: flex; flex-direction: column; gap: 10px; }
+    .footer-divider { background: #e8ddd0; align-self: stretch; }
+    .footer-label { font-size: 13.2px; letter-spacing: 0.22em; text-transform: uppercase; color: #d4a900; font-weight: 600; margin-bottom: 6px; }
+    .footer-name { font-family: var(--font-display); font-size: clamp(23.8px,2.65vw,34.4px); font-weight: 400; color: #1a0e00; line-height: 1.3; margin-bottom: 6px; }
+    .footer-text { font-size: 17.8px; line-height: 1.75; color: #7a6a50; font-weight: 300; }
+    .footer-text a { color: #d4a900; text-decoration: none; }
+    #footer-nav { display: flex; flex-direction: column; gap: 14px; padding-left: 60px; border-left: 1px solid #e8ddd0; flex-shrink: 0; }
+    #footer-nav a { font-family: var(--font-body); font-size: 14.5px; letter-spacing: 0.14em; text-transform: uppercase; color: #7a6a50; text-decoration: none; font-weight: 500; }
+    #footer-bottom { text-align: center; padding-top: 40px; margin-top: 50px; border-top: 1px solid #e8ddd0; font-size: 14.5px; letter-spacing: 0.08em; color: #b0a090; }
+  </style>
+</head>
+<body>
+
+  <div id="nav-top-fade"></div>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav id="navbar">
+    <ul class="nav-left">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Club</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="nuestros-quesos.html">Nuestros Quesos</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+      </li>
+    </ul>
+
+    <div class="nav-logo-wrap">
+      <a href="index.html">
+        <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile">
+      </a>
+      <span class="nav-logo-dot"></span>
+    </div>
+
+    <ul class="nav-right">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Regalos</a>
+      </li>
+      <li class="nav-item"><a class="nav-link" href="catering.html">Catering</a></li>
+      <li class="nav-item"><a class="nav-link" href="nosotros.html">Nosotros</a></li>
+      <li class="nav-item">
+        <div class="nav-icons">
+          <button class="nav-icon-btn" aria-label="Buscar">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="22" y2="22"></line></svg>
+          </button>
+          <button class="nav-icon-btn" aria-label="Mi cuenta">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </button>
+          <button class="nav-icon-btn" aria-label="Carrito" style="position:relative;">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+            <span class="cart-badge"></span>
+          </button>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <div id="hero-wrapper">
+    <div id="hero-sticky">
+      <video id="hero-video" autoplay muted loop playsinline>
+        <source src="uploads/Opening Video - Full - New Website Los Quesos Chile.mp4" type="video/mp4">
+      </video>
+      <div id="hero-overlay"></div>
+      <div id="hero-top-mask"></div>
+      <div id="hero-text-container">
+        <p id="hero-tagline">
+          Quesos que cuentan historias,<br>
+          sabores que <em>conquistan.</em>
+        </p>
+        <div id="hero-paragraph">
+          <span class="hero-para-line">Recorremos Chile en busca de los mejores productores artesanales.</span>
+          <div class="hero-cta-wrap">
+            <a class="hero-cta" href="nuestros-quesos.html">Conoce los mejores quesos de Chile</a>
+          </div>
+          <span class="hero-para-line">Quesos hechos con tiempo, con cuidado, con sabor real.</span>
+        </div>
+      </div>
+      <div id="hero-wave-bottom">
+        <svg viewBox="0 0 1440 380" preserveAspectRatio="none" style="width:100%;display:block;">
+          <path d="M0,380 L0,332 C180,260 270,380 360,380 C580,380 569,188 720,188 C871,188 880,380 1080,380 C1170,380 1260,260 1440,332 L1440,380 Z" fill="#fff"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Review card -->
+    <div id="hero-review-card">
+      <div id="hr-badge-label">Review</div>
+      <div id="hr-subtitle">#1 Quesería en Chile</div>
+      <div id="hr-avatars-row">
+        <div class="hr-av hr-av-1">CM</div>
+        <div class="hr-av hr-av-2">AR</div>
+        <div class="hr-av hr-av-3">JP</div>
+        <div class="hr-av hr-av-4">LV</div>
+        <div class="hr-av hr-av-5">MR</div>
+        <div class="hr-av hr-av-6">FB</div>
+      </div>
+      <div id="hr-footer">
+        <div class="hr-stars-row">★★★★★</div>
+        <div id="hr-count-text">82 reseñas · 5.0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SECTION 2 — CHEESE ANIMATION (frame 1) ═══ -->
+  <div id="cheese-scroll-outer">
+    <div id="cheese-sticky">
+      <img id="cheese-static-img" src="Animations/Animation Cheese/frame_0001.png" alt="">
+    </div>
+  </div>
+
+  <!-- ── PRODUCTOS DESTACADOS ──────────────────────────── -->
+  <section id="featured-section">
+    <div id="featured-heading">
+      <span class="featured-label">Selección</span>
+      <h2>
+        <button class="featured-arrow">&lt;</button>Nuestros productos<button class="featured-arrow">&gt;</button>
+      </h2>
+    </div>
+    <div id="featured-carousel">
+      <div id="featured-track">
+        <div class="f-slide">
+          <img src="uploads/products/dulce-leche-cabra.png" alt="Dulce de Leche de Cabra">
+        </div>
+        <div class="f-slide active">
+          <img src="uploads/products/cahuelche.png" alt="Camembert Cahuelche">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/burrata.png" alt="Burrata Fior di Latte">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/gruyere.png" alt="Queso Gruyere">
+        </div>
+        <div class="f-slide">
+          <img src="uploads/products/edam-merken.png" alt="Edam Merkén">
+        </div>
+      </div>
+    </div>
+    <div id="featured-info">
+      <div id="featured-meta-wrap">
+        <p id="featured-cat">Pasta Blanda · Leche de Vaca</p>
+        <h3 id="featured-name">Camembert Cahuelche</h3>
+        <p id="featured-price">$7.800</p>
+      </div>
+      <div id="featured-ctas">
+        <a href="nuestros-quesos.html" class="cta-tienda">Ir a tienda</a>
+        <button class="cta-cart" aria-label="Agregar al carro">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+            <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke="#1a0e00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="10" cy="20.5" r="1.2" fill="#1a0e00" style="stroke:none"/>
+            <circle cx="19.5" cy="20.5" r="1.2" fill="#1a0e00" style="stroke:none"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SECTION 4 — DESPACHO ═══ -->
+  <section id="shipping-section">
+    <p class="section-label">Despacho &amp; Retiro</p>
+    <h2>Te lo llevamos donde estés</h2>
+    <div class="shipping-grid">
+
+      <div class="shipping-item">
+        <div class="shipping-icon">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div class="shipping-item-body">
+          <div class="shipping-item-title">Despacho Gratis</div>
+          <div class="shipping-item-text">
+            En compras sobre <strong>$35.000</strong> a Ñuñoa, Providencia, Las Condes, La Reina y Vitacura.<br>
+            Resto de Santiago <strong>$6.500</strong> en compras sobre <strong>$30.000</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="shipping-divider"></div>
+
+      <div class="shipping-item">
+        <div class="shipping-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="shipping-item-body">
+          <div class="shipping-item-title">Retira en Tienda</div>
+          <div class="shipping-item-text">
+            <a href="https://maps.google.com/?q=Nueva+de+Lyon+116+Providencia" target="_blank">Nueva de Lyon 116, Providencia</a><br>
+            Metro Los Leones
+          </div>
+        </div>
+      </div>
+
+      <div class="shipping-divider"></div>
+
+      <div class="shipping-item">
+        <div class="shipping-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="shipping-item-body">
+          <div class="shipping-item-title">Regiones</div>
+          <div class="shipping-item-text">
+            Los pedidos de regiones van <strong>por pagar vía courier</strong>.<br>
+            Compra mínima <strong>$30.000</strong>.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ SECTION 5 — TESTIMONIOS ═══ -->
+  <section id="testimonials">
+    <div id="test-header">
+      <span class="test-pill">Testimonios</span>
+      <div id="test-heading-row">
+        <button class="test-btn">&lt;</button>
+        <h2>Lo que dicen<br><em>nuestros clientes</em></h2>
+        <button class="test-btn">&gt;</button>
+      </div>
+    </div>
+    <div id="test-stage">
+      <div id="test-track">
+
+        <div class="test-card tc-dark active">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Nice variety in cow, goat and sheep crafted cheeses from the south and north of Chile. Morbier, raclette, brie, tomme &amp; etc.</p>
+          <p class="test-author">Andres Chile</p>
+        </div>
+
+        <div class="test-card tc-yellow">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Buen lugar, además te puedes servir sandwich con quesos de muy buena calidad y demas productos. Tiene una terraza exterior con mesitas donde servirse.</p>
+          <p class="test-author">Jose Vergara</p>
+        </div>
+
+        <div class="test-card tc-cream">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Gran variedad de quesos y charcutería de nuestro país. Muy buena presentación y exquisitos productos.</p>
+          <p class="test-author">Fabian Avilés Donoso</p>
+        </div>
+
+        <div class="test-card tc-brown">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">Increíble experiencia con Carlos ! Muy lindo ver el potencial Que hay en Chile respecto a los quesos. Además compramos 2 quesos increíbles. Pudimos degustar. ¡Muy recomendado!</p>
+          <p class="test-author">Patricio Lopetegui Moreno</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FORMULARIO DE CONTACTO ═══ -->
+  <section id="contact-section">
+    <div id="contact-inner">
+      <span class="section-label-contact">Contacto</span>
+      <h2>Escríbenos</h2>
+      <form action="#" method="post">
+        <div class="contact-field">
+          <input type="text" id="cf-nombre" name="nombre" placeholder="Nombre">
+          <label for="cf-nombre">Nombre <span style="color:var(--yellow-dark);">*</span></label>
+        </div>
+        <div class="contact-field">
+          <input type="email" id="cf-email" name="email" placeholder="Email">
+          <label for="cf-email">Email <span style="color:var(--yellow-dark);">*</span></label>
+        </div>
+        <div class="contact-field">
+          <input type="tel" id="cf-telefono" name="telefono" placeholder="Teléfono">
+          <label for="cf-telefono">Teléfono</label>
+        </div>
+        <div class="contact-field">
+          <input type="text" id="cf-asunto" name="asunto" placeholder="Asunto">
+          <label for="cf-asunto">Asunto</label>
+        </div>
+        <button type="submit" class="contact-submit">Enviar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══ SITE FOOTER ═══ -->
+  <footer id="site-footer">
+    <div id="footer-inner">
+      <div id="footer-info">
+        <div class="footer-col" style="justify-content:center;">
+          <img src="uploads/LOGO QUESOS.png" alt="Los Quesos de Chile" style="width:100%;height:auto;display:block;">
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Horarios</p>
+          <p class="footer-text">Lunes a viernes: 9:00 am – 8:30 pm<br>Sábado: 10:00 am – 6:30 pm<br>Domingo: cerrado</p>
+          <p class="footer-text" style="margin-top:10px;"><a href="https://maps.google.com/?q=Nueva+de+Lyon+116+Providencia" target="_blank">Nueva de Lyon 116, local 3, Providencia</a><br>A media cuadra del metro Los Leones</p>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-col">
+          <p class="footer-label">Contacto</p>
+          <p class="footer-text"><a href="https://wa.me/56992656723">+56 9 9265 6723</a><br><a href="mailto:contacto@losquesosdechile.cl">contacto@losquesosdechile.cl</a></p>
+          <div style="display:flex;gap:16px;margin-top:16px;">
+            <a href="https://www.instagram.com/losquesosdechile" target="_blank" aria-label="Instagram" style="display:inline-flex;opacity:0.75;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5.5" stroke="#1a0e00" stroke-width="1.8"/><circle cx="12" cy="12" r="4.2" stroke="#1a0e00" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.1" fill="#1a0e00"/></svg>
+            </a>
+            <a href="https://www.facebook.com/losquesosdechile" target="_blank" aria-label="Facebook" style="display:inline-flex;opacity:0.75;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M17 2h-3a5 5 0 0 0-5 5v3H6v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" stroke="#1a0e00" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <nav id="footer-nav">
+        <a href="index.html">Inicio</a>
+        <a href="nuestros-quesos.html">Nuestros Quesos</a>
+        <a href="acompañamientos.html">Acompañamientos &amp; Cafetería</a>
+        <a href="catering.html">Catering</a>
+        <a href="nosotros.html">Nosotros</a>
+        <a href="#">Contacto</a>
+      </nav>
+    </div>
+    <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
+  </footer>
+
+</body>
+</html>
