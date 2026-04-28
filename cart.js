@@ -108,16 +108,22 @@
     renderPanel();
     var panel = document.getElementById('cart-panel');
     var overlay = document.getElementById('cart-overlay');
-    if (panel) panel.classList.add('open');
-    if (overlay) overlay.classList.add('open');
+    if (panel) { panel.style.display = 'flex'; requestAnimationFrame(function(){ panel.classList.add('open'); }); }
+    if (overlay) { overlay.style.display = 'block'; requestAnimationFrame(function(){ overlay.classList.add('open'); }); }
     document.body.style.overflow = 'hidden';
   }
 
   function closePanel() {
     var panel = document.getElementById('cart-panel');
     var overlay = document.getElementById('cart-overlay');
-    if (panel) panel.classList.remove('open');
-    if (overlay) overlay.classList.remove('open');
+    if (panel) {
+      panel.classList.remove('open');
+      panel.addEventListener('transitionend', function hide(){ panel.style.display = 'none'; panel.removeEventListener('transitionend', hide); }, { once: true });
+    }
+    if (overlay) {
+      overlay.classList.remove('open');
+      overlay.addEventListener('transitionend', function hide(){ overlay.style.display = 'none'; overlay.removeEventListener('transitionend', hide); }, { once: true });
+    }
     document.body.style.overflow = '';
   }
 
