@@ -265,6 +265,51 @@
     }
     #item-modal-add:hover { background: #3a2010; }
 
+    /* ─── CART PANEL ─── */
+    #cart-overlay { position:fixed;inset:0;background:rgba(26,14,0,0.38);z-index:299;display:none;opacity:0;pointer-events:none;transition:opacity 0.4s ease; }
+    #cart-overlay.open { opacity:1;pointer-events:auto; }
+    #cart-panel { position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:#faf7f2;z-index:300;display:none;flex-direction:column;transform:translateX(100%);transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);box-shadow:-6px 0 48px rgba(26,14,0,0.14); }
+    #cart-panel.open { transform:translateX(0); }
+    #cart-panel-header { display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-count-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:#1a0e00; }
+    #cart-close { background:none;border:none;cursor:pointer;color:#1a0e00;font-size:18px;line-height:1;padding:4px;opacity:0.45;transition:opacity 0.2s; }
+    #cart-close:hover { opacity:1; }
+    #cart-panel-body { flex:1;overflow-y:auto; }
+    #cart-items { padding:8px 28px 0; }
+    .cart-item { display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid #ede5d8; }
+    .cart-item:last-child { border-bottom:none; }
+    .cart-item-img { width:68px;height:68px;object-fit:contain;background:#fff;border-radius:6px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-item-info { flex:1;min-width:0; }
+    .cart-item-name { font-family:var(--font-body);font-size:13.5px;font-weight:400;color:#1a0e00;margin-bottom:3px; }
+    .cart-item-price { font-family:var(--font-body);font-size:13px;color:#7a6a50;font-weight:300;margin-bottom:10px; }
+    .cart-item-qty { display:flex;align-items:center;gap:8px; }
+    .cart-qty-btn { background:none;border:1px solid #c8baa8;width:26px;height:26px;border-radius:2px;cursor:pointer;font-size:15px;color:#1a0e00;display:flex;align-items:center;justify-content:center;transition:background 0.2s,color 0.2s,border-color 0.2s;font-family:var(--font-body); }
+    .cart-qty-btn:hover { background:#1a0e00;color:#faf7f2;border-color:#1a0e00; }
+    .cart-qty-num { font-family:var(--font-body);font-size:14px;font-weight:500;color:#1a0e00;min-width:18px;text-align:center; }
+    .cart-item-remove { background:none;border:none;cursor:pointer;color:#c0b0a0;font-size:14px;padding:2px 4px;transition:color 0.2s;flex-shrink:0; }
+    .cart-item-remove:hover { color:#1a0e00; }
+    #cart-empty-msg { text-align:center;padding:52px 28px;font-family:var(--font-body);color:#b0a090;font-size:14px;font-weight:300; }
+    #cart-recommendations { padding:20px 28px;border-top:1px solid #e8ddd0; }
+    .cart-rec-title { font-family:var(--font-body);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;font-weight:600;color:#d4a900;margin-bottom:14px; }
+    .cart-rec-item { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0e8dc; }
+    .cart-rec-item:last-child { border-bottom:none; }
+    .cart-rec-img { width:50px;height:50px;object-fit:contain;background:#fff;border-radius:4px;flex-shrink:0;border:1px solid #ede5d8; }
+    .cart-rec-info { flex:1;min-width:0; }
+    .cart-rec-name { font-family:var(--font-body);font-size:12.5px;color:#1a0e00;font-weight:400;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .cart-rec-price { font-family:var(--font-body);font-size:11.5px;color:#7a6a50;font-weight:300; }
+    .cart-rec-add { background:none;border:1.5px solid #1a0e00;color:#1a0e00;padding:6px 14px;font-family:var(--font-body);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;cursor:pointer;border-radius:2px;transition:background 0.2s,color 0.2s;flex-shrink:0; }
+    .cart-rec-add:hover { background:#1a0e00;color:#faf7f2; }
+    #cart-panel-footer { padding:20px 28px 28px;border-top:1px solid #e8ddd0;flex-shrink:0; }
+    #cart-subtotal-row { display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px; }
+    #cart-subtotal-label { font-family:var(--font-body);font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;color:#7a6a50; }
+    #cart-subtotal { font-family:var(--font-display);font-size:26px;font-weight:400;color:#1a0e00; }
+    #cart-go-btn { display:block;width:100%;text-align:center;padding:16px;background:#1a0e00;color:#faf7f2;font-family:var(--font-body);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;text-decoration:none;transition:background 0.25s; }
+    #cart-go-btn:hover { background:#3d1f00; }
+    .cart-badge { position:absolute;top:-5px;right:-5px;background:#d4a900;color:#1a0e00;font-size:8.5px;font-weight:700;min-width:15px;height:15px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:var(--font-body);pointer-events:none; }
+    .quick-add-btn { background:none;border:none;cursor:pointer;padding:2px 4px;color:#b09060;opacity:0.55;transition:opacity 0.2s,color 0.2s;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle; }
+    .quick-add-btn:hover { opacity:1;color:#1a0e00; }
+    .quick-add-btn svg { width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round; }
+
     /* ─── SITE FOOTER ─── */
     #site-footer { background: #fff; border-top: 1px solid #e8ddd0; padding: 70px 80px 50px; }
     #footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 80px; max-width: 1400px; margin: 0 auto; }
@@ -341,7 +386,7 @@
         <div class="nav-icons">
           <button class="nav-icon-btn" aria-label="Buscar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="22" y2="22"></line></svg></button>
           <button class="nav-icon-btn" aria-label="Mi cuenta"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
-          <button class="nav-icon-btn" aria-label="Carrito"><svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>
+          <button class="nav-icon-btn" aria-label="Carrito" style="position:relative;"><svg viewBox="0 0 24 24" fill="none"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg><span class="cart-badge"></span></button>
         </div>
       </li>
     </ul>
@@ -400,6 +445,7 @@
     </div>
   </div>
 
+  <script src="cart.js"></script>
   <script>
     // ── Navbar scroll ──
     const navbar = document.getElementById('navbar');
@@ -641,6 +687,19 @@
       v.textContent = parseInt(v.textContent) + 1;
     });
 
+    document.getElementById('item-modal-add').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const item = currentFiltered[currentIndex];
+      if (!item || !item.price) return;
+      const qty = parseInt(document.getElementById('item-qty-val').textContent) || 1;
+      const numericPrice = parseInt(item.price.replace(/[$\.]/g, ''));
+      const id = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const imgSrc = item.img || '';
+      for (let i = 0; i < qty; i++) LQDC.addItem({ id, name: item.name, price: numericPrice, img: imgSrc });
+      closeModal();
+      LQDC.openPanel();
+    });
+
     function renderItems(filter) {
       currentFiltered = filter === 'all' ? ITEMS : ITEMS.filter(p => p.cat === filter);
       const grid = document.getElementById('items-grid');
@@ -648,6 +707,7 @@
       currentFiltered.forEach((item, i) => {
         const card = document.createElement('div');
         card.className = 'item-card';
+        const quickBtn = item.cat === 'despensa' ? `<button class="quick-add-btn" title="Agregar al carro"><svg viewBox="0 0 24 24"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>` : '';
         card.innerHTML = `
           <div class="item-img-wrap" data-cat="${item.cat}">
             ${item.img ? `<img src="${item.img}" alt="${item.name}" style="width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;">` : (CAT_ICONS[item.cat] || '')}
@@ -657,10 +717,22 @@
             <div class="item-cat">${item.catLabel}</div>
             <div class="item-name">${item.name}</div>
             <div class="item-desc">${item.desc}</div>
-            <div class="item-price">${item.price}</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="item-price">${item.price}</div>
+              ${quickBtn}
+            </div>
           </div>
         `;
         card.addEventListener('click', () => openModal(item, i));
+        if (item.cat === 'despensa') {
+          card.querySelector('.quick-add-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const numericPrice = parseInt(item.price.replace(/[$\.]/g, ''));
+            const id = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            LQDC.addItem({ id, name: item.name, price: numericPrice, img: item.img || '' });
+            LQDC.openPanel();
+          });
+        }
         grid.appendChild(card);
       });
     }
@@ -743,5 +815,27 @@
     </div>
     <div id="footer-bottom"><p>© 2025 Los Quesos de Chile. Todos los derechos reservados.</p></div>
   </footer>
+
+  <div id="cart-overlay"></div>
+  <div id="cart-panel">
+    <div id="cart-panel-header">
+      <span id="cart-count-label">Tu carrito</span>
+      <button id="cart-close" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div id="cart-panel-body">
+      <div id="cart-items"></div>
+      <div id="cart-recommendations">
+        <p class="cart-rec-title">Completa tu carrito</p>
+        <div id="cart-rec-list"></div>
+      </div>
+    </div>
+    <div id="cart-panel-footer">
+      <div id="cart-subtotal-row">
+        <span id="cart-subtotal-label">Subtotal</span>
+        <span id="cart-subtotal">$0</span>
+      </div>
+      <a href="carrito.html" id="cart-go-btn">Ir a carrito</a>
+    </div>
+  </div>
 </body>
 </html>

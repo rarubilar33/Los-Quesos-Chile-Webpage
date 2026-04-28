@@ -205,6 +205,14 @@
     }
     .product-price.agotado { color: #c0a080; font-weight: 400; font-style: italic; }
     .product-card.hidden { display: none; }
+    .product-footer { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .quick-add-btn {
+      background: none; border: none; cursor: pointer; padding: 2px 4px;
+      color: #b09060; opacity: 0.55; transition: opacity 0.2s, color 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .quick-add-btn:hover { opacity: 1; color: #1a0e00; }
+    .quick-add-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
     /* ─── PRODUCT MODAL ─── */
     #product-modal {
@@ -701,15 +709,28 @@
       currentFiltered.forEach((p, i) => {
         const card = document.createElement('div');
         card.className = 'product-card';
+        const cartBtnHtml = p.price !== 'Agotado' ? `<button class="quick-add-btn" aria-label="Agregar al carro" title="Agregar al carro"><svg viewBox="0 0 24 24"><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.73l1.38-8.26H5.21"/><circle cx="10" cy="20.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="19.5" cy="20.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>` : '';
         card.innerHTML = `
           <div class="product-img-wrap">
             <img src="${p.img}" alt="${p.name}" loading="lazy">
           </div>
           <div class="product-cat">${p.catLabel}</div>
           <div class="product-name">${p.name}</div>
-          <div class="product-price ${p.price === 'Agotado' ? 'agotado' : ''}">${p.price}</div>
+          <div class="product-footer">
+            <div class="product-price ${p.price === 'Agotado' ? 'agotado' : ''}">${p.price}</div>
+            ${cartBtnHtml}
+          </div>
         `;
         card.addEventListener('click', () => openModal(p, i));
+        if (p.price !== 'Agotado') {
+          card.querySelector('.quick-add-btn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const numericPrice = parseInt(p.price.replace(/[$\.]/g, ''));
+            const id = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            LQDC.addItem({ id, name: p.name, price: numericPrice, img: p.img });
+            LQDC.openPanel();
+          });
+        }
         grid.appendChild(card);
       });
     }
