@@ -310,11 +310,10 @@
       letter-spacing: 0.03em;
     }
 
-    /* ─── SECTION 2 — CHEESE ANIMATION (first frame) ─── */
+    /* ─── SECTION 2 — CHEESE FIRST FRAME + NOSOTROS TEXT ─── */
     #cheese-scroll-outer {
       height: 100vh;
       position: relative;
-      z-index: 3;
       background: #fff;
       overflow: hidden;
     }
@@ -326,11 +325,59 @@
     }
     #cheese-static-img {
       position: absolute;
-      top: 5%;
-      left: 10%;
-      height: 175%;
+      top: 8.75vh;
+      left: calc(50% - 54vh);
+      height: 175vh;
       width: auto;
       pointer-events: none;
+    }
+    /* Nosotros text — left side */
+    #nosotros-text {
+      position: absolute;
+      left: 17.06vw;
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: 28vw;
+      z-index: 10;
+    }
+    #nosotros-text .reveal-label {
+      display: block;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--yellow-dark);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    #nosotros-text h2 {
+      font-family: var(--font-display);
+      font-size: clamp(30px, 3vw, 50px);
+      font-weight: 500;
+      line-height: 1.12;
+      color: #1a0e00;
+      margin-bottom: 24px;
+    }
+    #nosotros-text p {
+      font-family: var(--font-body);
+      font-size: clamp(13px, 1.1vw, 16px);
+      font-weight: 300;
+      line-height: 1.8;
+      color: #3a2a1a;
+      margin-bottom: 18px;
+    }
+    #nosotros-text .cta-tienda {
+      display: inline-block;
+      padding: 13px 36px;
+      border: 1.5px solid #1a0e00;
+      border-radius: 2px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a0e00;
+      text-decoration: none;
+      margin-top: 8px;
     }
 
     /* ── FEATURED PRODUCTS ─────────────────────────────── */
@@ -773,10 +820,17 @@
     </div>
   </div>
 
-  <!-- ═══ SECTION 2 — CHEESE ANIMATION (frame 1) ═══ -->
+  <!-- ═══ SECTION 2 — CHEESE FIRST FRAME + NOSOTROS TEXT ═══ -->
   <div id="cheese-scroll-outer">
     <div id="cheese-sticky">
-      <img id="cheese-static-img" src="Animations/Animation Cheese/frame_0001.png" alt="">
+      <img id="cheese-static-img" src="Animations/Animation Cheese/frame_0001.jpg" alt="">
+      <div id="nosotros-text">
+        <span class="reveal-label">Nosotros</span>
+        <h2>Ocho años buscando<br>el queso perfecto.</h2>
+        <p>En 2016, Carlos Peralta se hizo una pregunta simple: ¿por qué era tan difícil encontrar quesos chilenos realmente buenos? Eso lo llevó a recorrer el país de norte a sur, conectando con pequeños productores que trabajan respetando los tiempos de la naturaleza.</p>
+        <p>Hoy, Los Quesos de Chile reúne una selección de más de 15 productores artesanales — leche de vaca, cabra y oveja — acercando cada queso directamente desde su origen hasta tu mesa.</p>
+        <a href="nosotros.html" class="cta-tienda">Nosotros</a>
+      </div>
     </div>
   </div>
 
