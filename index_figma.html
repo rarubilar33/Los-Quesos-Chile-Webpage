@@ -155,6 +155,7 @@
     #hero-wrapper {
       position: relative;
       height: 100vh;
+      z-index: 1;
     }
 
     #hero-sticky {
@@ -316,6 +317,8 @@
       position: relative;
       background: #fff;
       overflow: hidden;
+      margin-top: -30vh;
+      z-index: 4;
     }
     #cheese-sticky {
       position: relative;
@@ -325,9 +328,10 @@
     }
     #cheese-static-img {
       position: absolute;
-      top: 8.75vh;
-      left: calc(50% - 54vh);
-      height: 175vh;
+      right: -4vw;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 95vh;
       width: auto;
       pointer-events: none;
     }
